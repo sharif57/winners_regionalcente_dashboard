@@ -4,7 +4,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-function getVisiblePages(currentPage: number, totalPages: number) {
+function getVisiblePages(currentPage: number, totalPages: number): Array<number | "..."> {
     if (totalPages <= 7) {
         return Array.from({ length: totalPages }, (_, index) => index + 1);
     }

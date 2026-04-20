@@ -89,7 +89,10 @@ export default function PerformanceChart() {
             />
             <Tooltip
               cursor={{ fill: "rgba(31, 31, 31, 0.06)" }}
-              formatter={(value: number) => [value.toLocaleString(), "Value"]}
+              formatter={(value) => [
+                typeof value === "number" ? value.toLocaleString() : String(value ?? ""),
+                "Value",
+              ]}
             />
             <Bar dataKey="value" fill="#434D64" radius={[6, 6, 0, 0]} />
           </BarChart>
