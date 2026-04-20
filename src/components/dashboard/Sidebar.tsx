@@ -14,6 +14,7 @@ import {
     LogOut
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
 
 const menuItems = [
     { label: "Overview", icon: LayoutDashboard, href: "/dashboard" },
@@ -26,6 +27,7 @@ const menuItems = [
 
 export default function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: () => void }) {
     const pathname = usePathname();
+    const { logout } = useAuth();
 
     return (
         <>
@@ -78,13 +80,13 @@ export default function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose
 
                 {/* Logout Section */}
                 <div className="p-4 border-t border-gray-100">
-                    <Link
-                        href={'/auth/login'}
+                    <button
+                        onClick={logout}
                         className="w-full flex items-center gap-4 px-4 py-4 text-sm font-bold text-[#696969] hover:text-[#F65353] hover:bg-red-50 transition-all rounded-sm group"
                     >
                         <LogOut className="w-5 h-5 group-hover:text-[#F65353]" />
                         <span>Log Out</span>
-                    </Link>
+                    </button>
                 </div>
             </aside>
         </>

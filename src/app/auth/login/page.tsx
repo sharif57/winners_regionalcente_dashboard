@@ -1,13 +1,53 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Eye, EyeOff } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
 
 export default function LoginPage() {
+    const [email, setEmail] = useState("admin@example.com");
+    const [password, setPassword] = useState("password123");
     const [showPassword, setShowPassword] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const router = useRouter();
+    const { login, isAuthenticated } = useAuth();
+
+    // Redirect if already authenticated
+    useEffect(() => {
+        if (isAuthenticated) {
+            router.push("/dashboard");
+        }
+    }, [isAuthenticated, router]);
+
+    const handleLogin = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError(null);
+
+        if (!email || !password) {
+            setError("Please enter both email and password");
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            const success = await login(email, password);
+            if (success) {
+                router.push("/dashboard");
+            } else {
+                setError("Invalid email or password. Use demo credentials.");
+            }
+        } catch (err) {
+            setError("An unexpected error occurred. Please try again.");
+            console.error(err);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-right-10 duration-700">
@@ -40,7 +80,14 @@ export default function LoginPage() {
             </div>
 
             {/* Form Box Section */}
-            <div className="bg-[#E8E9EC80] p-8 md:p-10 space-y-6">
+            <form onSubmit={handleLogin} className="bg-[#E8E9EC80] p-8 md:p-10 space-y-6">
+                {error && (
+                    <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 text-sm flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
+                        <AlertCircle className="w-4 h-4" />
+                        {error}
+                    </div>
+                )}
+
                 <div className="space-y-4">
                     {/* Email Input */}
                     <div className="flex flex-col gap-2">
@@ -49,8 +96,11 @@ export default function LoginPage() {
                         </label>
                         <input
                             type="email"
-                            placeholder="Email address"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="admin@example.com"
                             className="w-full bg-white border-none px-6 py-4 text-sm focus:ring-1 focus:ring-[#F65353] transition-all outline-none"
+                            required
                         />
                     </div>
 
@@ -62,8 +112,11 @@ export default function LoginPage() {
                         <div className="relative">
                             <input
                                 type={showPassword ? "text" : "password"}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
                                 placeholder="Your password"
                                 className="w-full bg-white border-none px-6 py-4 text-sm focus:ring-1 focus:ring-[#F65353] transition-all outline-none pr-12"
+                                required
                             />
                             <button
                                 type="button"
@@ -89,16 +142,26 @@ export default function LoginPage() {
                         Forgot Password ?
                     </Link>
                 </div>
-            </div>
 
-            {/* Primary Action */}
+                <div className="pt-2">
+                    <Button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="w-full bg-[#C51D1D] hover:bg-[#A31818] text-white py-8 text-base font-bold uppercase tracking-widest rounded-none shadow-xl transform transition-all hover:scale-[1.02] flex items-center justify-center gap-2"
+                    >
+                        {isSubmitting ? (
+                            <>
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                                Signing In...
+                            </>
+                        ) : (
+                            "Sign In"
+                        )}
+                    </Button>
+                </div>
+            </form>
+
             <div className="space-y-6">
-                <Button
-                    className="w-full bg-[#C51D1D] hover:bg-[#A31818] text-white py-8 text-base font-bold uppercase tracking-widest rounded-none shadow-xl transform transition-all hover:scale-[1.02]"
-                >
-                    <Link href="/auth/verify-email">Sign In</Link>
-                </Button>
-
                 <p className="text-center text-[#696969] text-sm font-medium">
                     Don&lsquo;t have an account?{" "}
                     <Link
@@ -108,6 +171,12 @@ export default function LoginPage() {
                         Sign Up
                     </Link>
                 </p>
+
+                {/* Demo Credentials Hint */}
+                <div className="bg-blue-50 border border-blue-100 p-4 text-center">
+                    <p className="text-xs text-blue-600 font-medium uppercase tracking-wider mb-1">Demo Credentials</p>
+                    <p className="text-xs text-gray-600 italic">Email: admin@example.com | Password: password123</p>
+                </div>
             </div>
         </div>
     );
