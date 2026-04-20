@@ -59,7 +59,9 @@ export default function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose
                 {/* Navigation Menu */}
                 <nav className="flex-1  space-y-1">
                     {menuItems.map((item) => {
-                        const isActive = pathname === item.href;
+                        const isActive = item.href === "/dashboard" 
+                            ? pathname === "/dashboard" 
+                            : pathname.startsWith(item.href);
                         return (
                             <Link
                                 key={item.label}
