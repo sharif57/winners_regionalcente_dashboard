@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useGetAdminDashboardQuery } from "@/redux/feature/dashboardSlice";
 import {
   XAxis,
   YAxis,
@@ -12,36 +13,36 @@ import {
   Bar,
 } from "recharts";
 
-// Data
-const yearlyData = [
-  { label: "2020", value: 4200 },
-  { label: "2021", value: 5800 },
-  { label: "2022", value: 7100 },
-  { label: "2023", value: 6500 },
-  { label: "2024", value: 8200 },
-  { label: "2025", value: 8900 },
-  { label: "2026", value: 9500 },
-];
-
-const monthlyData = [
-  { label: "Jan", value: 6200 },
-  { label: "Feb", value: 6800 },
-  { label: "Mar", value: 7100 },
-  { label: "Apr", value: 6900 },
-  { label: "May", value: 7400 },
-  { label: "Jun", value: 8100 },
-  { label: "Jul", value: 8500 },
-  { label: "Aug", value: 8900 },
-  { label: "Sep", value: 9200 },
-  { label: "Oct", value: 8800 },
-  { label: "Nov", value: 9100 },
-  { label: "Dec", value: 9500 },
-];
+type ChartData = {
+  label: string;
+  value: number;
+};
 
 export default function PerformanceChart() {
   const [view, setView] = useState<"Yearly" | "Monthly">("Monthly");
+  const { data: dashboardData, isLoading } = useGetAdminDashboardQuery();
 
-  const data = view === "Yearly" ? yearlyData : monthlyData;
+  const monthlyData: ChartData[] =
+    dashboardData?.data?.investor_growth?.labels?.map((label, index) => ({
+      label,
+      value: dashboardData?.data?.investor_growth?.data?.[index] ?? 0,
+    })) ?? [];
+
+  const yearlyData: ChartData[] =
+    monthlyData.length > 0
+      ? [
+        {
+          label: "This Year",
+          value: monthlyData.reduce((sum, item) => sum + item.value, 0),
+        },
+      ]
+      : [];
+
+  const data = (view === "Yearly" ? yearlyData : monthlyData).length
+    ? view === "Yearly"
+      ? yearlyData
+      : monthlyData
+    : [{ label: "-", value: 0 }];
 
   return (
     <div className="w-full  mx-auto bg-white text-[#1F1F1F] p-8 border border-gray-100">
@@ -73,30 +74,34 @@ export default function PerformanceChart() {
 
       {/* Chart Area */}
       <div className="h-[290px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-            <XAxis
-              dataKey="label"
-              tickLine={false}
-              axisLine={false}
-              tick={{ fill: "#6B7280", fontSize: 12 }}
-            />
-            <YAxis
-              tickLine={false}
-              axisLine={false}
-              tick={{ fill: "#6B7280", fontSize: 12 }}
-            />
-            <Tooltip
-              cursor={{ fill: "rgba(31, 31, 31, 0.06)" }}
-              formatter={(value) => [
-                typeof value === "number" ? value.toLocaleString() : String(value ?? ""),
-                "Value",
-              ]}
-            />
-            <Bar dataKey="value" fill="#434D64" radius={[6, 6, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
+        {isLoading ? (
+          <div className="h-full w-full animate-pulse bg-gray-100" />
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+              <XAxis
+                dataKey="label"
+                tickLine={false}
+                axisLine={false}
+                tick={{ fill: "#6B7280", fontSize: 12 }}
+              />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                tick={{ fill: "#6B7280", fontSize: 12 }}
+              />
+              <Tooltip
+                cursor={{ fill: "rgba(31, 31, 31, 0.06)" }}
+                formatter={(value) => [
+                  typeof value === "number" ? value.toLocaleString() : String(value ?? ""),
+                  "Value",
+                ]}
+              />
+              <Bar dataKey="value" fill="#434D64" radius={[6, 6, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        )}
       </div>
     </div>
   );

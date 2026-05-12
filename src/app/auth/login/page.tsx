@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
+import { toast } from "sonner";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("admin@example.com");
@@ -29,7 +30,9 @@ export default function LoginPage() {
         setError(null);
 
         if (!email || !password) {
-            setError("Please enter both email and password");
+            const message = "Please enter both email and password";
+            setError(message);
+            toast.error(message);
             return;
         }
 
@@ -37,12 +40,17 @@ export default function LoginPage() {
         try {
             const success = await login(email, password);
             if (success) {
+                toast.success("Login successful");
                 router.push("/dashboard");
             } else {
-                setError("Invalid email or password. Use demo credentials.");
+                const message = "Invalid credentials or you do not have admin access.";
+                setError(message);
+                toast.error(message);
             }
         } catch (err) {
-            setError("An unexpected error occurred. Please try again.");
+            const message = "An unexpected error occurred. Please try again.";
+            setError(message);
+            toast.error(message);
             console.error(err);
         } finally {
             setIsSubmitting(false);

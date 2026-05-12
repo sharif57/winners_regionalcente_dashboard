@@ -13,14 +13,15 @@ export default function DashboardLayout({
     children: React.ReactNode;
 }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const { isAuthenticated, isLoading } = useAuth();
+    const { isAuthenticated, isLoading, user } = useAuth();
     const router = useRouter();
+    const isAdmin = user?.role?.toLowerCase() === "admin";
 
     useEffect(() => {
-        if (!isLoading && !isAuthenticated) {
+        if (!isLoading && (!isAuthenticated || !isAdmin)) {
             router.push("/auth/login");
         }
-    }, [isAuthenticated, isLoading, router]);
+    }, [isAuthenticated, isAdmin, isLoading, router]);
 
     if (isLoading) {
         return (
@@ -33,22 +34,22 @@ export default function DashboardLayout({
         );
     }
 
-    if (!isAuthenticated) {
+    if (!isAuthenticated || !isAdmin) {
         return null; // Will redirect via useEffect
     }
 
     return (
         <div className="flex bg-[#E8E9EC] min-h-screen">
             {/* Sidebar */}
-            <Sidebar 
-                isOpen={sidebarOpen} 
-                onClose={() => setSidebarOpen(false)} 
+            <Sidebar
+                isOpen={sidebarOpen}
+                onClose={() => setSidebarOpen(false)}
             />
 
             {/* Main Content Area */}
             <div className="flex-1 lg:ml-64 flex flex-col min-w-0">
-                <DashboardHeader 
-                    onMenuClick={() => setSidebarOpen(true)} 
+                <DashboardHeader
+                    onMenuClick={() => setSidebarOpen(true)}
                 />
                 <main className="flex-1 p-4 md:p-6 lg:p-[28px] overflow-x-hidden">
                     {children}

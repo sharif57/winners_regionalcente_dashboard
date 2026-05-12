@@ -4,8 +4,8 @@ import type { UserProject } from "../types";
 
 export default function UserProjectList({ projects }: { projects: UserProject[] }) {
     return (
-        <section className="space-y-4">
-            <h3 className="text-[28px] font-semibold italic text-[#1F1F1F] sm:text-[34px]">
+        <section className="space-y-4 bg-white px-5 py-6 shadow-[0_10px_30px_rgba(15,23,42,0.04)] sm:px-7 sm:py-7 rounded-lg">
+            <h3 className="text-[28px] font-semibold italic text-[#1F1F1F] ">
                 Project List
             </h3>
 
@@ -13,7 +13,7 @@ export default function UserProjectList({ projects }: { projects: UserProject[] 
                 {projects.map((project) => (
                     <article
                         key={project.id}
-                        className="flex flex-col gap-5 rounded-[24px] bg-[#F7F8FA] px-5 py-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)] sm:px-6 lg:flex-row lg:items-center lg:justify-between"
+                        className="flex flex-col gap-5 rounded-lg bg-[#E8E9EC52] px-5 py-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)] sm:px-6 lg:flex-row lg:items-center lg:justify-between"
                     >
                         <div className="flex items-center gap-4 sm:gap-5">
                             <div className="relative size-[78px] overflow-hidden rounded-full bg-white">

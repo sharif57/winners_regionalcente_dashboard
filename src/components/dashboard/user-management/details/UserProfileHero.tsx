@@ -1,4 +1,4 @@
-import Image from "next/image";
+/* eslint-disable @next/next/no-img-element */
 import { CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { UserDetail, UserStatus } from "../types";
@@ -32,29 +32,33 @@ export default function UserProfileHero({
     status: UserStatus;
 }) {
     return (
-        <section className="rounded-[28px] bg-white px-5 py-6 shadow-[0_10px_30px_rgba(15,23,42,0.04)] sm:px-7 sm:py-7">
+        <section className="rounded-lg   bg-white px-5 py-6 shadow-[0_10px_30px_rgba(15,23,42,0.04)] sm:px-7 sm:py-7">
             <div className="flex flex-col gap-8 xl:flex-row xl:items-center">
-                <div className="flex items-center gap-4 sm:gap-6 xl:min-w-[300px]">
-                    <div className="relative size-[110px] overflow-hidden rounded-md border border-[#D6D8DD] bg-[#233641] shadow-sm sm:size-[128px]">
-                        <Image
+                <div className="flex items-center gap-4 sm:gap-6 xl:min-w-75">
+                    <div className="relative size-27.5 overflow-hidden rounded-md border border-[#D6D8DD] bg-[#233641] shadow-sm sm:size-32">
+                        <img
                             src={user.avatar}
                             alt={user.name}
-                            fill
-                            className="object-cover"
-                            sizes="128px"
+                            className="object-cover w-full h-full"
                         />
-                        <span className="absolute bottom-2 right-2 inline-flex rounded-full bg-white p-[2px]">
+                        <span className="absolute bottom-0 right-0 inline-flex rounded-full bg-white p-0.5">
                             <CheckCircle2 className="size-5 text-[#17B65E]" fill="#17B65E" />
                         </span>
                     </div>
 
-                    <div>
-                        <h2 className="text-[34px] leading-none font-semibold italic text-[#111827] sm:text-[42px]">
-                            {user.name}
-                        </h2>
-                        <p className="mt-3 text-[28px] leading-none text-[#4B5563] sm:text-[32px]">
-                            {user.phone}
-                        </p>
+                    <div className="space-y-5">
+                        <div>
+                            <h2 className="text-xl leading-none font-semibold italic text-[#000A24] sm:text-[32px]">
+                                {user.name}
+                            </h2>
+                            <p className="mt-3 text-base leading-none font-normal text-[#45464D] sm:text-base">
+                                {user.phone}
+                            </p>
+                        </div>
+                        <div>
+                            <p className="text-base font-normal uppercase text-[#696969]">Origin</p>
+                            <p className="text-lg font-semibold leading-snug text-[#1F1F1F]">{user.origin}</p>
+                        </div>
                     </div>
                 </div>
 
@@ -67,8 +71,8 @@ export default function UserProfileHero({
                                 index > 0 && "xl:border-l xl:border-[#D7DBE2]"
                             )}
                         >
-                            <p className="text-lg font-medium uppercase text-[#6B7280]">{item.label}</p>
-                            {item.key === "origin" && <p className="text-[20px] leading-snug text-[#1F1F1F]">{user.origin}</p>}
+                            <p className="text-base font-normal uppercase text-[#696969]">{item.label}</p>
+
                             {item.key === "aumContribution" && <p className="text-[20px] leading-snug text-[#1F1F1F]">{user.aumContribution}</p>}
                             {item.key === "address" && (
                                 <div className="text-[20px] leading-snug text-[#1F1F1F]">

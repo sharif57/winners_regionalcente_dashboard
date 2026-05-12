@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { startTransition, useDeferredValue, useState } from "react";
+import { startTransition, useDeferredValue, useMemo, useState } from "react";
 import { Eye, Search, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { USER_MANAGEMENT_USERS } from "./mock-data";
 import UserManagementPagination from "./UserManagementPagination";
 import UserManagementStatusBadge from "./UserManagementStatusBadge";
-import type { UserRecord, UserStatus } from "./types";
+import type { UserRecord } from "./types";
+import { useAllUsersQuery } from "@/redux/feature/userSlice";
 
 const FILTERS = ["ALL", "ACTIVE", "PENDING", "COMPLETED"] as const;
 const PAGE_SIZE = 6;
@@ -54,29 +54,84 @@ function matchesSearch(user: UserRecord, search: string) {
     ].some((field) => field.toLowerCase().includes(value));
 }
 
+function formatJoiningDate(rawDate: string) {
+    const date = new Date(rawDate);
+
+    if (Number.isNaN(date.getTime())) {
+        return rawDate;
+    }
+
+    return date.toLocaleDateString("en-US", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+    });
+}
+
 export default function UserManagementClient() {
-    const [users, setUsers] = useState(USER_MANAGEMENT_USERS);
     const [activeFilter, setActiveFilter] = useState<FilterValue>("ALL");
     const [search, setSearch] = useState("");
     const [requestedPage, setRequestedPage] = useState(1);
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
+    const [deletedIds, setDeletedIds] = useState<number[]>([]);
     const deferredSearch = useDeferredValue(search);
+    const trimmedSearch = deferredSearch.trim();
+
+    const statusParam = useMemo(() => {
+        if (activeFilter === "ACTIVE") {
+            return true;
+        }
+
+        if (activeFilter === "PENDING") {
+            return false;
+        }
+
+        return undefined;
+    }, [activeFilter]);
+
+    const { data: userList, isLoading, isFetching } = useAllUsersQuery({
+        page: requestedPage,
+        page_size: PAGE_SIZE,
+        search: trimmedSearch || undefined,
+        status: statusParam,
+    });
+
+    const users = useMemo<UserRecord[]>(() => {
+        const apiUsers = userList?.data ?? [];
+
+        return apiUsers
+            .filter((user) => !deletedIds.includes(user.id))
+            .map((user) => ({
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                phone: user.phone_number || "-",
+                country: user.country || "-",
+                joiningDate: formatJoiningDate(user.created_at),
+                status: user.is_active ? "Active" : "Pending",
+            }));
+    }, [deletedIds, userList?.data]);
 
     const filteredUsers = users.filter(
-        (user) => matchesFilter(user, activeFilter) && matchesSearch(user, deferredSearch.trim())
+        (user) => matchesFilter(user, activeFilter) && matchesSearch(user, trimmedSearch)
     );
 
-    const totalPages = Math.max(1, Math.ceil(filteredUsers.length / PAGE_SIZE));
-    const currentPage = Math.min(requestedPage, totalPages);
-    const pageStart = (currentPage - 1) * PAGE_SIZE;
-    const currentUsers = filteredUsers.slice(pageStart, pageStart + PAGE_SIZE);
+    const totalPages = activeFilter === "COMPLETED"
+        ? 1
+        : Math.max(1, userList?.meta?.total_pages ?? 1);
+    const currentPage = activeFilter === "COMPLETED" ? 1 : (userList?.meta?.page ?? requestedPage);
+    const currentUsers = filteredUsers;
     const currentIds = currentUsers.map((user) => user.id);
     const allCurrentSelected = currentIds.length > 0 && currentIds.every((id) => selectedIds.includes(id));
+    const totalResults = activeFilter === "COMPLETED"
+        ? currentUsers.length
+        : Math.max(0, (userList?.meta?.count ?? 0) - deletedIds.length);
 
     function handleFilterChange(filter: FilterValue) {
         startTransition(() => {
             setActiveFilter(filter);
             setRequestedPage(1);
+            setSelectedIds([]);
         });
     }
 
@@ -84,6 +139,7 @@ export default function UserManagementClient() {
         setSearch(value);
         startTransition(() => {
             setRequestedPage(1);
+            setSelectedIds([]);
         });
     }
 
@@ -106,18 +162,11 @@ export default function UserManagementClient() {
     }
 
     function handleDelete(userId: number) {
-        setUsers((previous) => previous.filter((user) => user.id !== userId));
+        setDeletedIds((previous) =>
+            previous.includes(userId) ? previous : [...previous, userId]
+        );
         setSelectedIds((previous) => previous.filter((id) => id !== userId));
     }
-
-    const statusCounts = users.reduce<Record<"ALL" | UserStatus, number>>(
-        (counts, user) => {
-            counts.ALL += 1;
-            counts[user.status] += 1;
-            return counts;
-        },
-        { ALL: 0, Active: 0, Pending: 0, Completed: 0 }
-    );
 
     return (
         <section className="overflow-hidden rounded-[24px] border border-[#E3E5E8] bg-white shadow-[0_8px_30px_rgba(15,23,42,0.04)]">
@@ -131,29 +180,21 @@ export default function UserManagementClient() {
                         </div>
 
                         <div className="flex flex-wrap items-center gap-5 text-xl font-normal italic text-[#1F1F1F]">
-                            {FILTERS.map((filter) => {
-                                const statusKey =
-                                    filter === "ALL"
-                                        ? "ALL"
-                                        : ((filter[0] + filter.slice(1).toLowerCase()) as UserStatus);
-
-                                return (
-                                    <button
-                                        key={filter}
-                                        type="button"
-                                        onClick={() => handleFilterChange(filter)}
-                                        className={cn(
-                                            "transition-colors",
-                                            activeFilter === filter
-                                                ? "text-[#F65353]"
-                                                : "text-[#1F1F1F] hover:text-[#F65353]"
-                                        )}
-                                    >
-                                        {filter}
-
-                                    </button>
-                                );
-                            })}
+                            {FILTERS.map((filter) => (
+                                <button
+                                    key={filter}
+                                    type="button"
+                                    onClick={() => handleFilterChange(filter)}
+                                    className={cn(
+                                        "transition-colors",
+                                        activeFilter === filter
+                                            ? "text-[#F65353]"
+                                            : "text-[#1F1F1F] hover:text-[#F65353]"
+                                    )}
+                                >
+                                    {filter}
+                                </button>
+                            ))}
                         </div>
                     </div>
 
@@ -195,7 +236,20 @@ export default function UserManagementClient() {
                         </tr>
                     </thead>
                     <tbody>
-                        {currentUsers.length === 0 ? (
+                        {isLoading || isFetching ? (
+                            Array.from({ length: PAGE_SIZE }).map((_, rowIndex) => (
+                                <tr key={`table-skeleton-${rowIndex}`} className="border-b border-[#E3E5E8] bg-white">
+                                    <td className="px-6 py-6"><div className="h-5 w-12 animate-pulse bg-[#ECEFF3]" /></td>
+                                    <td className="px-6 py-6"><div className="h-5 w-40 animate-pulse bg-[#ECEFF3]" /></td>
+                                    <td className="px-6 py-6"><div className="h-5 w-52 animate-pulse bg-[#ECEFF3]" /></td>
+                                    <td className="px-6 py-6"><div className="h-5 w-32 animate-pulse bg-[#ECEFF3]" /></td>
+                                    <td className="px-6 py-6"><div className="h-5 w-32 animate-pulse bg-[#ECEFF3]" /></td>
+                                    <td className="px-6 py-6"><div className="h-5 w-36 animate-pulse bg-[#ECEFF3]" /></td>
+                                    <td className="px-6 py-6"><div className="h-8 w-24 animate-pulse bg-[#ECEFF3]" /></td>
+                                    <td className="px-6 py-6"><div className="h-8 w-20 animate-pulse bg-[#ECEFF3]" /></td>
+                                </tr>
+                            ))
+                        ) : currentUsers.length === 0 ? (
                             <tr>
                                 <td colSpan={8} className="px-6 py-12 text-center text-base text-[#667085]">
                                     No users found for the current filter.
@@ -281,11 +335,26 @@ export default function UserManagementClient() {
                         Select visible users
                     </label>
                     <span className="text-sm text-[#667085]">
-                        {filteredUsers.length} result{filteredUsers.length === 1 ? "" : "s"}
+                        {totalResults} result{totalResults === 1 ? "" : "s"}
                     </span>
                 </div>
 
-                {currentUsers.length === 0 ? (
+                {isLoading || isFetching ? (
+                    Array.from({ length: 3 }).map((_, index) => (
+                        <article
+                            key={`mobile-skeleton-${index}`}
+                            className="rounded-[22px] border border-[#E4E7EC] bg-white p-5 shadow-sm"
+                        >
+                            <div className="h-5 w-40 animate-pulse bg-[#ECEFF3]" />
+                            <div className="mt-5 grid grid-cols-1 gap-4 rounded-2xl bg-[#F8F9FB] p-4 sm:grid-cols-2">
+                                <div className="h-4 w-28 animate-pulse bg-[#ECEFF3]" />
+                                <div className="h-4 w-28 animate-pulse bg-[#ECEFF3]" />
+                                <div className="h-4 w-28 animate-pulse bg-[#ECEFF3]" />
+                                <div className="h-4 w-28 animate-pulse bg-[#ECEFF3]" />
+                            </div>
+                        </article>
+                    ))
+                ) : currentUsers.length === 0 ? (
                     <div className="rounded-2xl border border-dashed border-[#D0D5DD] px-5 py-12 text-center text-[#667085]">
                         No users found for the current filter.
                     </div>

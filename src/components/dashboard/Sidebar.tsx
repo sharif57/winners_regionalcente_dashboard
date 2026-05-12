@@ -18,7 +18,7 @@ import { useAuth } from "@/context/AuthContext";
 
 const menuItems = [
     { label: "Overview", icon: LayoutDashboard, href: "/dashboard" },
-    { label: "User Management", icon: Briefcase, href: "/dashboard/user-management" },
+    { label: "User Management", icon: Briefcase, href: "/dashboard/user-management", adminOnly: true },
     { label: "Project", icon: PlusCircle, href: "/dashboard/explore-project" },
     { label: "Notification", icon: Bell, href: "/dashboard/notifications" },
     { label: "Settings", icon: Settings, href: "/dashboard/settings" },
@@ -27,7 +27,9 @@ const menuItems = [
 
 export default function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: () => void }) {
     const pathname = usePathname();
-    const { logout } = useAuth();
+    const { logout, user } = useAuth();
+    const isAdmin = user?.role?.toLowerCase() === "admin";
+    const visibleMenuItems = menuItems.filter((item) => !item.adminOnly || isAdmin);
 
     return (
         <>
@@ -58,9 +60,9 @@ export default function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose
 
                 {/* Navigation Menu */}
                 <nav className="flex-1  space-y-1">
-                    {menuItems.map((item) => {
-                        const isActive = item.href === "/dashboard" 
-                            ? pathname === "/dashboard" 
+                    {visibleMenuItems.map((item) => {
+                        const isActive = item.href === "/dashboard"
+                            ? pathname === "/dashboard"
                             : pathname.startsWith(item.href);
                         return (
                             <Link

@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
-import UserDetailsClient from "@/components/dashboard/user-management/details/UserDetailsClient";
-import { getUserDetailById } from "@/components/dashboard/user-management/mock-data";
+import UserDetailsClient from "../../../../../components/dashboard/user-management/details/UserDetailsClient";
 
 export default async function UserDetailsPage({
     params,
@@ -14,11 +13,5 @@ export default async function UserDetailsPage({
         notFound();
     }
 
-    const user = getUserDetailById(userId);
-
-    if (!user) {
-        notFound();
-    }
-
-    return <UserDetailsClient user={user} />;
+    return <UserDetailsClient userId={userId} />;
 }
