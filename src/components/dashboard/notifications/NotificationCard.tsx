@@ -1,84 +1,54 @@
 "use client";
 
 import React from "react";
-import { Trash2, Clock, User } from "lucide-react";
+import { Clock, Mail, MailOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface NotificationCardProps {
     id: string;
-    type: "all" | "specific";
-    recipient: string;
-    recipientsCount?: number;
+    title: string;
     message: string;
     date: string;
-    readCount: number;
-    onDelete?: (id: string) => void;
+    isRead: boolean;
 }
 
 export default function NotificationCard({
-    id,
-    type,
-    recipient,
-    recipientsCount,
+    title,
     message,
     date,
-    readCount,
-    onDelete,
+    isRead,
 }: NotificationCardProps) {
     return (
-        <div className="bg-[#E8E9EC52] flex flex-col md:flex-row gap-4 p-5 md:p-6 lg:p-8 rounded-sm hover:shadow-sm transition-all relative group">
-            {/* Avatar Placeholder */}
-            <div className="shrink-0">
-                <div className="w-10 h-10 md:w-12 md:h-12 bg-[#E0E2E7] flex items-center justify-center rounded-sm text-[#4E4E4E]">
-                    <User size={20} />
-                </div>
-            </div>
-
-            {/* Content Section */}
-            <div className="flex-1 space-y-3">
-                {/* Header: Badge and Subtitle */}
-                <div className="flex items-center gap-2 flex-wrap">
-                    <span
-                        className={cn(
-                            "px-2 py-0.5 text-[11px] font-bold  text-white",
-                            type === "all" ? "bg-[#434D64]" : "bg-[#F65353]"
-                        )}
-                    >
-                        {type === "all" ? "All Users" : recipient}
-                    </span>
-                    {type === "all" && recipientsCount && (
-                        <span className="text-[#98A2B3] text-sm font-medium">
-                            • {recipientsCount} recipients
+        <div className="group flex flex-col gap-4 rounded-sm bg-[#E8E9EC52] p-5 transition-all hover:shadow-sm md:p-6 lg:p-8">
+            <div className="flex items-start justify-between gap-4">
+                <div className="space-y-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                        <span
+                            className={cn(
+                                "inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold text-white",
+                                isRead ? "bg-[#434D64]" : "bg-[#F65353]"
+                            )}
+                        >
+                            {isRead ? <MailOpen size={12} /> : <Mail size={12} />}
+                            {isRead ? "Read" : "Unread"}
                         </span>
-                    )}
-                </div>
-
-                {/* Message Body */}
-                <p className="text-[#1F1F1F] text-base md:text-[18px] leading-relaxed max-w-[900px]">
-                    {message}
-                </p>
-
-                {/* Footer: Time and Read Status */}
-                <div className="flex items-center gap-4 text-[#98A2B3]">
-                    <div className="flex items-center gap-1.5">
-                        <Clock size={16} />
-                        <span className="text-[14px] font-medium">{date}</span>
+                        <span className="text-sm font-semibold uppercase tracking-widest text-[#667085]">
+                            {title}
+                        </span>
                     </div>
-                    {type === "all" && (
-                        <div className="flex items-center gap-1.5">
-                            <span className="text-[14px] font-medium">• {readCount} read</span>
-                        </div>
-                    )}
+
+                    <p className="max-w-225 text-base leading-relaxed text-[#1F1F1F] md:text-[18px]">
+                        {message}
+                    </p>
                 </div>
             </div>
 
-            {/* Actions: Delete Button */}
-            <button
-                onClick={() => onDelete?.(id)}
-                className="md:absolute md:right-8 md:top-8 text-[#98A2B3] hover:text-[#B21F1F] transition-colors p-2 rounded-full hover:bg-white/50"
-            >
-                <Trash2 size={20} />
-            </button>
+            <div className="flex items-center gap-4 text-[#98A2B3]">
+                <div className="flex items-center gap-1.5">
+                    <Clock size={16} />
+                    <span className="text-[14px] font-medium">{date}</span>
+                </div>
+            </div>
         </div>
     );
 }
