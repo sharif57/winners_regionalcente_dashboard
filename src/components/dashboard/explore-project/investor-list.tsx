@@ -1,11 +1,21 @@
 "use client";
 
-import React from "react";
 import Image from "next/image";
 import { Trash2, Eye, ArrowDown } from "lucide-react";
-import { cn } from "@/lib/utils";
 
-const investors = [
+export type InvestorRow = {
+    id: string;
+    name: string;
+    amount: string;
+    email: string;
+    phone: string;
+    country: string;
+    date: string;
+    status: string;
+    image: string;
+};
+
+const defaultInvestors: InvestorRow[] = [
     {
         id: "#3066",
         name: "Olivia Rhye",
@@ -41,7 +51,11 @@ const investors = [
     },
 ];
 
-export default function InvestorList() {
+type InvestorListProps = {
+    investors?: InvestorRow[];
+};
+
+export default function InvestorList({ investors = defaultInvestors }: InvestorListProps) {
     return (
         <div className=" overflow-hidden  animate-in fade-in duration-500">
             <div className="p-4 ">
@@ -50,7 +64,7 @@ export default function InvestorList() {
                 </h2>
 
                 <div className="overflow-x-auto no-scrollbar">
-                    <table className="w-full text-left border-collapse min-w-[1000px]">
+                    <table className="w-full text-left border-collapse min-w-250">
                         <thead>
                             <tr className="bg-[#E8E9EC80] border-y border-[#EAECF0]">
                                 <th className="p-4 w-12 text-center">

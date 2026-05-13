@@ -1,15 +1,16 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
 interface ProjectCardProps {
+  id: number;
   image: string;
   title: string;
-  status: "Active" | "Completed";
+  status: "Active" | "Completed" | string;
   description: string;
   investment: string;
   roi: string;
@@ -17,6 +18,7 @@ interface ProjectCardProps {
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({
+  id,
   image,
   title,
   status,
@@ -27,16 +29,16 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
 }) => {
   const router = useRouter();
   return (
-    <div className="bg-[#E8E9EC52] p-5 md:p-6 lg:p- flex flex-col md:flex-row gap-8 md:gap-6 lg:gap-[40px] hover:shadow-xl transition-all duration-500 rounded-sm border border-[#F2F2F2]">
+    <div className="bg-[#E8E9EC52] p-5 md:p-6 lg:p-7 flex flex-col md:flex-row gap-8 md:gap-6 lg:gap-10 hover:shadow-xl transition-all duration-500 rounded-sm border border-[#F2F2F2]">
       {/* Circle Image Wrapper */}
       <div className="relative shrink-0 flex justify-center items-center">
-        <div className=" rounded-full overflow-hidden border-[1px] border-[#E8E9EC] shadow-md relative group">
-          <Image
+        <div className="rounded-full overflow-hidden border border-[#E8E9EC] shadow-md relative group">
+          <img
             src={image}
             alt={title}
             width={800}
             height={800}
-            className="size-[200px] object-cover transition-transform duration-700 group-hover:scale-110"
+            className="size-50 object-cover transition-transform duration-700 group-hover:scale-110"
           />
           {/* Subtle overlay for depth */}
           <div className="absolute inset-0 bg-black/5 pointer-events-none" />
@@ -53,7 +55,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             </h3>
             <span
               className={cn(
-                "px-[14px] py-[6px] text-xs font-bold text-white tracking-widest",
+                "px-3.5 py-1.5 text-xs font-bold text-white tracking-widest",
                 status === "Active" ? "bg-[#3D475C]" : "bg-[#038862]"
               )}
             >
@@ -62,32 +64,32 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           </div>
 
           {/* Description */}
-          <p className="text-[#696969] text-[15px] lg:text-[16px] font-normal mb-8 leading-relaxed max-w-[480px]">
+          <p className="text-[#696969] text-[15px] lg:text-[16px] font-normal mb-8 leading-relaxed max-w-120">
             {description}
           </p>
 
           {/* Stats Section */}
           <div className="flex flex-wrap items-center gap-y-4 gap-x-6 lg:gap- mb-8">
-            <div className="space-y-1.5 min-w-[100px]">
-              <p className="text-[#696969] text-[11px] lg:text-base font-medium uppercase tracking-[0.1em]">
+            <div className="space-y-1.5 min-w-25">
+              <p className="text-[#696969] text-[11px] lg:text-base font-medium uppercase tracking-widest">
                 INVESTMENT
               </p>
               <p className="text-[#1F1F1F] text-lg lg:text-xl font-bold">
                 {investment}
               </p>
             </div>
-            <div className="hidden sm:block w-[1.5px] h-[40px] lg:h-[48px] bg-[#E8E9EC]" />
-            <div className="space-y-1.5 min-w-[80px]">
-              <p className="text-[#696969] text-[11px] lg:text-base font-medium uppercase tracking-[0.1em]">
+            <div className="hidden sm:block w-[1.5px] h-10 lg:h-12 bg-[#E8E9EC]" />
+            <div className="space-y-1.5 min-w-20">
+              <p className="text-[#696969] text-[11px] lg:text-base font-medium uppercase tracking-widest">
                 EST.ROI
               </p>
               <p className="text-[#EA4335] text-lg lg:text-xl font-bold">
                 {roi}
               </p>
             </div>
-            <div className="hidden sm:block w-[1.5px] h-[40px] lg:h-[48px] bg-[#E8E9EC]" />
-            <div className="space-y-1.5 min-w-[80px]">
-              <p className="text-[#696969] text-[11px] lg:text-base font-medium uppercase tracking-[0.1em]">
+            <div className="hidden sm:block w-[1.5px] h-10 lg:h-12 bg-[#E8E9EC]" />
+            <div className="space-y-1.5 min-w-20">
+              <p className="text-[#696969] text-[11px] lg:text-base font-medium uppercase tracking-widest">
                 PROGRESS
               </p>
               <p className="text-[#EA4335] text-lg lg:text-xl font-bold">
@@ -100,10 +102,10 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         {/* View Details Button */}
         <Button
           onClick={() => {
-            router.push(`/dashboard/explore-project/1`);
+            router.push(`/dashboard/explore-project/${id}`);
           }}
           variant="outline"
-          className="w-full rounded-none border-[#121E38] text-[#121E38] font-bold py-6 lg:py-5 text-xs lg:text-base tracking-[0.2em] border-[1px] hover:bg-[#121E38] hover:text-white transition-all duration-300 uppercase mt-auto"
+          className="w-full rounded-none border-[#121E38] text-[#121E38] font-bold py-6 lg:py-5 text-xs lg:text-base tracking-[0.2em] border hover:bg-[#121E38] hover:text-white transition-all duration-300 uppercase mt-auto"
         >
           VIEW DETAILS
         </Button>

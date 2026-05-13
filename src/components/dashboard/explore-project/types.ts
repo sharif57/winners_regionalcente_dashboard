@@ -7,4 +7,5 @@ export type TopStat = {
 export type DocumentItem = {
     name: string;
     type: string;
+    url?: string;
 };

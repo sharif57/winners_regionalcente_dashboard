@@ -1,3 +1,4 @@
+import { create } from "domain";
 import baseApi from "../Api/baseApi";
 
 
@@ -32,6 +33,84 @@ const settingSlice = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Evaluation"],
   }),
+  // /admin/user-agreements/
+    userAgreements: builder.query({
+      query: (params) => ({
+        url: `/admin/user-agreements/`,
+        method: "GET",
+        params: params ?? undefined,
+      }),
+      providesTags: ["Evaluation"],
+    }),
+
+    // /admin/agreement-steps/<<id>>/review/
+    reviewAgreementStep: builder.mutation({
+      query: ({ id, data }) => ({
+        url: `/admin/agreement-steps/${id}/review/`,
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Evaluation"],
+    }),
+
+    // /admin/user-agreements/1/
+    agreementDetails: builder.query({
+      query: (id) => ({
+        url: `/admin/user-agreements/${id}/`,
+        method: "GET",
+      }),
+      providesTags: ["Evaluation"],
+  }),
+
+//   PATCH
+// /api/v1/admin/user-agreements/step/{id}/review/
+  UserAgreementStepReview: builder.mutation({
+    query: ({ id, data }) => ({
+      url: `/admin/user-agreements/step/${id}/review/`,
+      method: "PATCH",
+      body: data,
+    }),
+    invalidatesTags: ["Evaluation"],
+  }),
+
+  // /admin/agreement-forms/
+    agreementForms: builder.query({
+      query: (params) => ({
+        url: `/admin/agreement-forms/`,
+        method: "GET",
+        params: params ?? undefined,
+      }),
+      providesTags: ["Evaluation"],
+  }),
+
+  createAgreementForm: builder.mutation({
+    query: (data) => ({
+      url: `/admin/agreement-forms/`,
+      method: "POST",
+      body: data,
+      formData: true,
+    }),
+    invalidatesTags: ["Evaluation"],
+  }),
+
+  updateAgreementForm: builder.mutation({
+    query: ({ id, data }) => ({
+      url: `/admin/agreement-forms/${id}/`,
+      method: "PATCH",
+      body: data,
+      formData: true,
+    }),
+    invalidatesTags: ["Evaluation"],
+  }),
+
+  deleteAgreementForm: builder.mutation({
+    query: (id) => ({
+      url: `/admin/agreement-forms/${id}/`,
+      method: "DELETE",
+    }),
+    invalidatesTags: ["Evaluation"],
+  })
+
 
   }),
 });
@@ -40,4 +119,12 @@ export const {
   useSendEvaluationRequestMutation,
   useGetUserDashboardQuery,
   useProjectInvestmentsMutation,
+  useUserAgreementsQuery,
+  useReviewAgreementStepMutation,
+  useAgreementDetailsQuery,
+  useUserAgreementStepReviewMutation,
+  useAgreementFormsQuery,
+  useCreateAgreementFormMutation,
+  useUpdateAgreementFormMutation,
+  useDeleteAgreementFormMutation,
 } = settingSlice;

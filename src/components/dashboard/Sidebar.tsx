@@ -11,13 +11,15 @@ import {
     Bell,
     Settings,
     Headphones,
-    LogOut
+    LogOut,
+    Cast
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 
 const menuItems = [
     { label: "Overview", icon: LayoutDashboard, href: "/dashboard" },
+    { label: "Evaluation", icon: Cast, href: "/dashboard/evaluation" },
     { label: "User Management", icon: Briefcase, href: "/dashboard/user-management", adminOnly: true },
     { label: "Project", icon: PlusCircle, href: "/dashboard/explore-project" },
     { label: "Notification", icon: Bell, href: "/dashboard/notifications" },

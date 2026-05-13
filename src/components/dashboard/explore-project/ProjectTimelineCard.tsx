@@ -1,6 +1,28 @@
-import { CheckCircle2, ClipboardList, LineChart } from "lucide-react";
+type ProjectTimelineCardProps = {
+    projectStartDate?: string;
+    projectEndDate?: string;
+    status?: string;
+};
 
-export default function ProjectTimelineCard() {
+const formatDate = (value?: string) => {
+    if (!value) {
+        return "";
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return value;
+    }
+
+    return new Intl.DateTimeFormat("en-US", { month: "short", year: "numeric" }).format(date);
+};
+
+export default function ProjectTimelineCard({ projectStartDate, projectEndDate, status = "active" }: ProjectTimelineCardProps) {
+    const startLabel = formatDate(projectStartDate) || "Jan, 2020";
+    const endLabel = formatDate(projectEndDate) || "Dec, 2028";
+    const statusLabel = status ? status.charAt(0).toUpperCase() + status.slice(1) : "Active";
+
     return (
         <article className="rounded-md bg-[#E8E9EC52] p-4 sm:p-6">
             <h2 className="mb-5 text-2xl font-semibold italic text-secondary sm:text-4xl">Project Timeline</h2>
@@ -40,15 +62,15 @@ export default function ProjectTimelineCard() {
             <div className="grid grid-cols-1 gap-3 text-center sm:grid-cols-3 sm:gap-2">
                 <div>
                     <p className="text-lg font-bold text-secondary">Planning</p>
-                    <p className="text-base text-[#4C4C4C]">Completed -Jan, 2020</p>
+                    <p className="text-base text-[#4C4C4C]">Completed - {startLabel}</p>
                 </div>
                 <div>
                     <p className="text-lg font-bold text-secondary">Construction</p>
-                    <p className="text-base text-[#4C4C4C]">Ongoing -Jan, 2023</p>
+                    <p className="text-base text-[#4C4C4C]">{statusLabel} - {startLabel}</p>
                 </div>
                 <div>
                     <p className="text-lg font-bold text-secondary">Completion</p>
-                    <p className="text-base text-[#4C4C4C]">Target Dec, 2028</p>
+                    <p className="text-base text-[#4C4C4C]">Target {endLabel}</p>
                 </div>
             </div>
         </article>

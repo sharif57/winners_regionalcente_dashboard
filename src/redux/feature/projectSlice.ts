@@ -4,6 +4,7 @@ export interface ProjectListParams {
   page?: number;
   page_size?: number;
   status?: string;
+  search?: string;
 }
 
 export interface ProjectItem {
@@ -123,6 +124,26 @@ const projectSlice = baseApi.injectEndpoints({
       providesTags: ["Notification"],
     }),
 
+    // /projects/
+    createProjects: builder.mutation({
+      query: (data) => ({
+        url: `/projects/`,
+        method: "POST",
+        body: data,
+        formData: true,
+      }),
+      invalidatesTags: ["Project"],
+    }),
+
+    // http://10.10.12.111:8050/api/v1/projects/<id>/investors/
+    projectDetailsInvestors: builder.query({
+      query: (id) => ({
+        url: `/projects/${id}/investors/`,
+        method: "GET",
+      }),
+       providesTags: ["Project"],
+    }),
+
   }),
 });
 
@@ -131,4 +152,6 @@ export const {
   useProjectDetailsQuery,
   useMyProjectsQuery,
   useNotificationListQuery,
+  useCreateProjectsMutation,
+  useProjectDetailsInvestorsQuery,
 } = projectSlice;

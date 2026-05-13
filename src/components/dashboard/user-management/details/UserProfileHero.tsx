@@ -21,7 +21,7 @@ const infoItems = [
     { key: "address", label: "ADDRESS" },
     { key: "dateOfBirth", label: "DOB" },
     { key: "joiningDate", label: "JOINING DATE" },
-    { key: "status", label: "STATUS" },
+    { key: "status", label: "STATUS" }, 
 ] as const;
 
 export default function UserProfileHero({
