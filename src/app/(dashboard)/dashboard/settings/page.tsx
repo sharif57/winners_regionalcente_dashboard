@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import Image from "next/image";
@@ -16,18 +18,25 @@ import {
     ListOrdered,
     Lock,
     Pencil,
+    Loader2,
     Shield,
     Strikethrough,
     Underline,
     UserRound,
 } from "lucide-react";
+import { useGetSettingsQuery, useUpdateSettingsMutation } from "@/redux/feature/settingSlice";
+import { toast } from "sonner";
+import { useUpdateProfileMutation, useUserProfileQuery } from "@/redux/feature/userSlice";
+import { useChangePasswordMutation } from "@/redux/feature/authSlice";
 
-type SettingsTab = "personal" | "password" | "about" | "terms";
+type SettingsTab = "personal" | "password" | "about" | "privacy" | "terms";
 
 type PersonalInfoState = {
     name: string;
     phone: string;
     country: string;
+    currentAddress: string;
+    dateOfBirth: string;
 };
 
 type PasswordState = {
@@ -46,13 +55,16 @@ const navItems: NavItem[] = [
     { id: "personal", label: "Personal Information", icon: UserRound },
     { id: "password", label: "Change Password", icon: Lock },
     { id: "about", label: "About Us", icon: Info },
-    { id: "terms", label: "Terms & Policy", icon: Shield },
+    { id: "privacy", label: "Privacy Policy", icon: Shield },
+    { id: "terms", label: "Terms of Use", icon: Shield },
 ];
 
 const defaultPersonalInfo: PersonalInfoState = {
     name: "Mr. John",
     phone: "01772968958",
     country: "Bangladesh",
+    currentAddress: "Dhaka, Bangladesh",
+    dateOfBirth: "2001-02-14",
 };
 
 const defaultPasswordState: PasswordState = {
@@ -63,10 +75,26 @@ const defaultPasswordState: PasswordState = {
 
 const defaultAboutContent = `At Winners Regional Center (WRC), we are committed to connecting global investors with high-quality, secure, and growth-driven investment opportunities. Our platform is designed to simplify the investment process by offering transparent project insights, seamless communication, and reliable support at every stage. With a focus on trust, innovation, and long-term value, we empower investors to make informed decisions while helping projects achieve sustainable success. Our dedicated team ensures a smooth experience through advanced technology, expert evaluation, and continuous monitoring, making WRC a trusted partner in your investment journey.`;
 
+const defaultPrivacyContent = `<p>Your privacy matters to us. We collect only the information required to provide account access, investor communication, project administration, and support services.</p><p>We do not sell personal data. Access to information is restricted to authorized personnel and protected using operational and technical safeguards.</p><p>We may retain information as required by law, compliance obligations, or legitimate business purposes related to service delivery and record keeping.</p>`;
+
 const defaultTermsContent = `<p>By using Winners Regional Center, you agree to provide accurate information, protect your account credentials, and use the platform only for lawful investment-related activities.</p><p>We collect and store personal information solely to support onboarding, identity verification, investor communication, and project administration. Your information is managed with confidentiality and operational safeguards.</p><p>Project information, timelines, and performance targets are presented for informational purposes and may change based on regulatory, financial, or market conditions. You should review all relevant documents before making investment decisions.</p>`;
 
 function cn(...classes: Array<string | false | null | undefined>) {
     return classes.filter(Boolean).join(" ");
+}
+
+function extractApiErrorMessage(error: any) {
+    const message = error?.data?.message ?? error?.error?.message ?? error?.message;
+
+    if (typeof message === "string" && message.trim()) {
+        return message;
+    }
+
+    if (Array.isArray(message) && message.length > 0) {
+        return message.filter(Boolean).join(" ");
+    }
+
+    return "Failed to save settings. Please try again.";
 }
 
 // ─── Rich Text Editor ────────────────────────────────────────────────────────
@@ -264,21 +292,89 @@ export default function SettingsPage() {
     const [activeTab, setActiveTab] = useState<SettingsTab>("personal");
     const [personalInfo, setPersonalInfo] = useState(defaultPersonalInfo);
     const [savedPersonalInfo, setSavedPersonalInfo] = useState(defaultPersonalInfo);
+    const [profileImagePreview, setProfileImagePreview] = useState("/image/men.png");
+    const [savedProfileImagePreview, setSavedProfileImagePreview] = useState("/image/men.png");
+    const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
     const [passwords, setPasswords] = useState(defaultPasswordState);
     const [savedPasswords, setSavedPasswords] = useState(defaultPasswordState);
     const [aboutContent, setAboutContent] = useState(defaultAboutContent);
     const [savedAboutContent, setSavedAboutContent] = useState(defaultAboutContent);
+    const [privacyContent, setPrivacyContent] = useState(defaultPrivacyContent);
+    const [savedPrivacyContent, setSavedPrivacyContent] = useState(defaultPrivacyContent);
     const [termsContent, setTermsContent] = useState(defaultTermsContent);
     const [savedTermsContent, setSavedTermsContent] = useState(defaultTermsContent);
+
+    const { data } = useGetSettingsQuery(undefined);
+    const { data: userProfileData } = useUserProfileQuery(undefined);
+
+    const [updateSettings, { isLoading: isSavingSettings }] = useUpdateSettingsMutation();
+    const [updateProfile, { isLoading: isSavingProfile }] = useUpdateProfileMutation();
+    const [changePassword, { isLoading: isChangingPassword }] = useChangePasswordMutation();
 
     const [showPasswords, setShowPasswords] = useState<Record<keyof PasswordState, boolean>>({
         oldPassword: false,
         newPassword: false,
         confirmPassword: false,
     });
-    const [photoPreview, setPhotoPreview] = useState("/image/men.png");
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const objectUrlRef = useRef<string | null>(null);
+
+    useEffect(() => {
+        const settings = data?.data;
+
+        if (!settings) return;
+
+        let isMounted = true;
+
+        queueMicrotask(() => {
+            if (!isMounted) return;
+
+            const about = settings.about_us || defaultAboutContent;
+            const privacy = settings.legal_privacy_policy || defaultPrivacyContent;
+            const terms = settings.legal_terms_of_use_policy || defaultTermsContent;
+
+            setAboutContent(about);
+            setSavedAboutContent(about);
+            setPrivacyContent(privacy);
+            setSavedPrivacyContent(privacy);
+            setTermsContent(terms);
+            setSavedTermsContent(terms);
+        });
+
+        return () => {
+            isMounted = false;
+        };
+    }, [data]);
+
+    useEffect(() => {
+        const profile = userProfileData?.data;
+
+        if (!profile) return;
+
+        let isMounted = true;
+
+        queueMicrotask(() => {
+            if (!isMounted) return;
+
+            const nextPersonalInfo = {
+                name: profile.name || defaultPersonalInfo.name,
+                phone: profile.phone || defaultPersonalInfo.phone,
+                country: profile.country || defaultPersonalInfo.country,
+                currentAddress: profile.current_address || defaultPersonalInfo.currentAddress,
+                dateOfBirth: profile.date_of_birth || defaultPersonalInfo.dateOfBirth,
+            };
+
+            setPersonalInfo(nextPersonalInfo);
+            setSavedPersonalInfo(nextPersonalInfo);
+            const nextProfileImage = profile.profile_image || "/image/men.png";
+            setProfileImagePreview(nextProfileImage);
+            setSavedProfileImagePreview(nextProfileImage);
+        });
+
+        return () => {
+            isMounted = false;
+        };
+    }, [userProfileData]);
 
     useEffect(() => {
         return () => {
@@ -292,26 +388,99 @@ export default function SettingsPage() {
         if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
         const nextUrl = URL.createObjectURL(file);
         objectUrlRef.current = nextUrl;
-        setPhotoPreview(nextUrl);
+        setProfileImagePreview(nextUrl);
+        setProfileImageFile(file);
     };
 
     const handleCancel = () => {
         switch (activeTab) {
-            case "personal": setPersonalInfo(savedPersonalInfo); break;
+            case "personal":
+                setPersonalInfo(savedPersonalInfo);
+                setProfileImagePreview(savedProfileImagePreview);
+                setProfileImageFile(null);
+                break;
             case "password": setPasswords(savedPasswords); break;
             case "about": setAboutContent(savedAboutContent); break;
+            case "privacy": setPrivacyContent(savedPrivacyContent); break;
             case "terms": setTermsContent(savedTermsContent); break;
         }
     };
 
-    const handleSave = () => {
-        switch (activeTab) {
-            case "personal": setSavedPersonalInfo(personalInfo); break;
-            case "password": setSavedPasswords(passwords); break;
-            case "about": setSavedAboutContent(aboutContent); break;
-            case "terms": setSavedTermsContent(termsContent); break;
+    const handleSave = async () => {
+        try {
+            switch (activeTab) {
+                case "personal": {
+                    const formData = new FormData();
+                    formData.append("name", personalInfo.name);
+                    formData.append("phone", personalInfo.phone);
+                    formData.append("country", personalInfo.country);
+                    formData.append("current_address", personalInfo.currentAddress);
+                    formData.append("date_of_birth", personalInfo.dateOfBirth);
+
+                    if (profileImageFile) {
+                        formData.append("profile_image", profileImageFile);
+                    }
+
+                    await updateProfile(formData).unwrap();
+                    setSavedPersonalInfo(personalInfo);
+                    setSavedProfileImagePreview(profileImagePreview);
+                    setProfileImageFile(null);
+                    toast.success("Profile updated successfully");
+                    break;
+                }
+                case "password": {
+                    if (!passwords.oldPassword || !passwords.newPassword || !passwords.confirmPassword) {
+                        toast.error("Please fill in all password fields");
+                        return;
+                    }
+
+                    if (passwords.newPassword !== passwords.confirmPassword) {
+                        toast.error("New password confirmation does not match");
+                        return;
+                    }
+
+                    await changePassword({
+                        old_password: passwords.oldPassword,
+                        new_password: passwords.newPassword,
+                        new_password_confirm: passwords.confirmPassword,
+                    }).unwrap();
+
+                    setPasswords(defaultPasswordState);
+                    setSavedPasswords(defaultPasswordState);
+                    setShowPasswords({
+                        oldPassword: false,
+                        newPassword: false,
+                        confirmPassword: false,
+                    });
+                    toast.success("Password changed successfully");
+                    break;
+                }
+                case "about": {
+                    await updateSettings({ about_us: aboutContent }).unwrap();
+                    setSavedAboutContent(aboutContent);
+                    toast.success("About Us updated successfully");
+                    break;
+                }
+                case "privacy": {
+                    await updateSettings({ legal_privacy_policy: privacyContent }).unwrap();
+                    setSavedPrivacyContent(privacyContent);
+                    toast.success("Privacy Policy updated successfully");
+                    break;
+                }
+                case "terms": {
+                    await updateSettings({ legal_terms_of_use_policy: termsContent }).unwrap();
+                    setSavedTermsContent(termsContent);
+                    toast.success("Terms of Use updated successfully");
+                    break;
+                }
+            }
+        } catch (error: any) {
+            toast.error(extractApiErrorMessage(error));
+            console.error(error);
         }
     };
+
+    const isSaving = activeTab === "personal" ? isSavingProfile : activeTab === "password" ? isChangingPassword : isSavingSettings;
 
     const renderPanel = () => {
         if (activeTab === "personal") {
@@ -322,10 +491,9 @@ export default function SettingsPage() {
                     </h1>
                     <div className="mt-8 flex flex-col items-center">
                         <div className="relative h-[170px] w-[170px] overflow-hidden rounded-full bg-[#ECEDEF] sm:h-[200px] sm:w-[200px]">
-                            <Image
-                                src={photoPreview}
+                            <img
+                                src={profileImagePreview}
                                 alt="Profile photo"
-                                fill
                                 className="object-cover"
                                 sizes="(max-width: 640px) 170px, 200px"
                             />
@@ -351,6 +519,8 @@ export default function SettingsPage() {
                             <FieldCard label="Your name" value={personalInfo.name} icon="edit" onChange={(v) => setPersonalInfo((c) => ({ ...c, name: v }))} />
                             <FieldCard label="Phone number" value={personalInfo.phone} icon="edit" onChange={(v) => setPersonalInfo((c) => ({ ...c, phone: v }))} />
                             <FieldCard label="Country" value={personalInfo.country} icon="check" onChange={(v) => setPersonalInfo((c) => ({ ...c, country: v }))} />
+                            <FieldCard label="Current address" value={personalInfo.currentAddress} icon="edit" onChange={(v) => setPersonalInfo((c) => ({ ...c, currentAddress: v }))} />
+                            <FieldCard label="Date of birth" value={personalInfo.dateOfBirth} icon="edit" onChange={(v) => setPersonalInfo((c) => ({ ...c, dateOfBirth: v }))} />
                         </div>
                     </div>
                 </div>
@@ -387,10 +557,23 @@ export default function SettingsPage() {
             );
         }
 
+        if (activeTab === "privacy") {
+            return (
+                <div className="animate-in fade-in duration-500">
+                    <h1 className="text-base leading-tight font-medium italic text-secondary sm:text-[20px]">
+                        Privacy Policy
+                    </h1>
+                    <div className="mt-8">
+                        <RichTextEditor value={privacyContent} onChange={setPrivacyContent} />
+                    </div>
+                </div>
+            );
+        }
+
         return (
             <div className="animate-in fade-in duration-500">
                 <h1 className="text-base leading-tight font-medium italic text-secondary sm:text-[20px]">
-                    Terms & Policy
+                    Terms of Use
                 </h1>
                 <div className="mt-8">
                     <RichTextEditor value={termsContent} onChange={setTermsContent} />
@@ -431,9 +614,17 @@ export default function SettingsPage() {
                     <button
                         type="button"
                         onClick={handleSave}
-                        className="flex min-h-[58px] items-center justify-center bg-[#C91E1E] px-6 py-3 text-[16px] font-bold uppercase text-white transition-colors hover:bg-[#AD1717]"
+                        disabled={isSaving}
+                        className="flex min-h-[58px] items-center justify-center bg-[#C91E1E] px-6 py-3 text-[16px] font-bold uppercase text-white transition-colors hover:bg-[#AD1717] disabled:cursor-not-allowed disabled:opacity-70"
                     >
-                        Save Changes
+                        {isSaving ? (
+                            <span className="inline-flex items-center gap-2">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                                Saving...
+                            </span>
+                        ) : (
+                            "Save Changes"
+                        )}
                     </button>
                 </div>
             </section>

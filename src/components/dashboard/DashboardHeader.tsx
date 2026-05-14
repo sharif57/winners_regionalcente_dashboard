@@ -1,29 +1,30 @@
+/* eslint-disable @next/next/no-img-element */
+'use client';
 import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { useUserProfileQuery } from "@/redux/feature/userSlice";
 
 export default function DashboardHeader({ onMenuClick }: { onMenuClick?: () => void }) {
     const pathname = usePathname();
     const { user } = useAuth();
     const hideHeader = /^\/dashboard\/user-management\/[^/]+$/.test(pathname);
 
+    const { data } = useUserProfileQuery(undefined);
+    console.log(data?.data, 'user profile data')
+
+    const userProfile = data?.data;
+
     if (hideHeader) {
         return null;
     }
 
-    // Get initials for profile placeholder
-    const getInitials = (name: string) => {
-        return name
-            .split(" ")
-            .map((n) => n[0])
-            .join("")
-            .toUpperCase();
-    };
+
 
     return (
         <header className="flex items-center justify-between p-4 md:p-6 lg:p-8 bg-white border-b border-gray-100">
             <div className="flex items-center gap-4">
-                <button 
+                <button
                     onClick={onMenuClick}
                     className="lg:hidden p-2 text-[#696969] hover:bg-gray-100 rounded-md transition-all"
                 >
@@ -31,7 +32,7 @@ export default function DashboardHeader({ onMenuClick }: { onMenuClick?: () => v
                 </button>
                 <div className="space-y-0.5 md:space-y-1">
                     <h1 className="text-[#1F1F1F] text-xl md:text-2xl lg:text-[28px] font-bold italic">
-                        Wellcome Back, {user?.name || "User"}
+                        Welcome Back, {userProfile?.name || "User"}
                     </h1>
                     <p className="text-[#696969] text-[10px] md:text-xs lg:text-sm font-medium">
                         Your EB-5 is actively contributing to following regional economic developers.
@@ -41,8 +42,18 @@ export default function DashboardHeader({ onMenuClick }: { onMenuClick?: () => v
 
             <div className="flex items-center gap-4">
                 <div className="relative w-10 h-10 lg:w-12 lg:h-12 rounded-full overflow-hidden border-2 border-gray-100 cursor-pointer hover:border-[#F65353] transition-all">
-                    <div className="w-full h-full bg-gray-200 flex items-center justify-center text-[#121E38] font-bold text-base lg:text-lg">
-                        {user?.name ? getInitials(user.name) : "US"}
+                    <div className="w-full h-full bg-gray-200 flex items-center justify-center text-[#121E38] font-bold text-base lg:text-lg overflow-hidden">
+                        {userProfile?.profile_image ? (
+                            <img
+                                src={userProfile.profile_image}
+                                alt="Profile"
+                                className="w-full h-full object-cover"
+                            />
+                        ) : user?.name ? (
+                            user.name.charAt(0).toUpperCase()
+                        ) : (
+                            "US"
+                        )}
                     </div>
                 </div>
             </div>

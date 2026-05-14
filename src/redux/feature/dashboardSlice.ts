@@ -34,9 +34,21 @@ const dashboardApi = baseApi.injectEndpoints({
         providesTags: ["Dashboard"],
     }),
 
+    // /investments/?ordering=-created_at
+    projectInvestments: builder.query({
+      query: () => ({
+        url: `/investments/?ordering=-created_at`,
+        method: "GET",
+      }),
+      providesTags: ["Dashboard"],
+    }),
+
+
+
   }),
 });
 
 export const {
   useGetAdminDashboardQuery,
+  useProjectInvestmentsQuery,
 } = dashboardApi;

@@ -23,11 +23,11 @@ export default function DashboardPage() {
             </div>
 
             {/* Content Section: My Projects and Alerts */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-[28px]">
-                <div className="lg:col-span-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-[28px] lg:auto-rows-fr">
+                <div className="lg:col-span-8 h-full">
                     <MyProjects />
                 </div>
-                <div className="lg:col-span-4">
+                <div className="lg:col-span-4 h-full">
                     <AlertList />
                 </div>
             </div>

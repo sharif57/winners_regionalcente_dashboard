@@ -25,10 +25,21 @@ const projectSlice = baseApi.injectEndpoints({
         invalidatesTags: ["Notification"],
     }),
 
+    // /support-queries/?ordering=-updated_at
+    supportQueries: builder.query({
+        query: (params) => ({
+            url: `/support/queries/`,
+            method: "GET",
+            params: { ...params, ordering: "-created_at" },
+        }),
+        providesTags: ["SupportQuery"],
+    }),
+
   }),
 });
 
 export const {
     useNotificationListQuery,
     useSendNotificationMutation,
+    useSupportQueriesQuery,
 } = projectSlice;

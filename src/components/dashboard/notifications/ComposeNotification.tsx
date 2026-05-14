@@ -43,7 +43,6 @@ export default function ComposeNotification({ onBack }: ComposeNotificationProps
     const [page, setPage] = useState(1);
     const [isOpen, setIsOpen] = useState(false);
     const [selectedRecipients, setSelectedRecipients] = useState<Recipient[]>([]);
-    const [, setHasMore] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
     const containerRef = useRef<HTMLDivElement | null>(null);
     const [sendNotification, { isLoading }] = useSendNotificationMutation();

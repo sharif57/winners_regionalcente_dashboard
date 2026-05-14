@@ -56,6 +56,15 @@ const settingSlice = baseApi.injectEndpoints({
       providesTags: ["Setting"],
     }),
 
+    updateSettings: builder.mutation({
+      query: (data) => ({
+        url: `/business-setting/`,
+        method: "PATCH",
+        body: data,
+      }),
+      invalidatesTags: ["Setting"],
+    }),
+
   }),
 });
 
@@ -63,4 +72,5 @@ export const {
   useBusinessSettingQuery,
   useAllNotificationsQuery,
   useGetSettingsQuery,
+  useUpdateSettingsMutation,
 } = settingSlice;
