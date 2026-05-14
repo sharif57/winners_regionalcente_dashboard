@@ -41,6 +41,7 @@ export default function ComposeNotification({ onBack }: ComposeNotificationProps
     const [title, setTitle] = useState("");
     const [message, setMessage] = useState("");
     const [page, setPage] = useState(1);
+    const [, setHasMore] = useState(true);
     const [isOpen, setIsOpen] = useState(false);
     const [selectedRecipients, setSelectedRecipients] = useState<Recipient[]>([]);
     const [searchQuery, setSearchQuery] = useState("");

@@ -1,5 +1,4 @@
 import SupportList from '@/components/dashboard/support/SupportList'
-import React from 'react'
 
 export default function SupportPage() {
     return (

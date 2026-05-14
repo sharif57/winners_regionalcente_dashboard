@@ -28,7 +28,7 @@ const projectSlice = baseApi.injectEndpoints({
     // /support-queries/?ordering=-updated_at
     supportQueries: builder.query({
         query: (params) => ({
-            url: `/support/queries/`,
+            url: `/support/admin/queries/`,
             method: "GET",
             params: { ...params, ordering: "-created_at" },
         }),
