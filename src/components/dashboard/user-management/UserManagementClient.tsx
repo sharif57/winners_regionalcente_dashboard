@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { startTransition, useDeferredValue, useMemo, useState } from "react";
-import { Eye, Search, Trash2 } from "lucide-react";
+import { Eye, Loader2, Search, Trash2, X } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import UserManagementPagination from "./UserManagementPagination";
 import UserManagementStatusBadge from "./UserManagementStatusBadge";
 import type { UserRecord } from "./types";
-import { useAllUsersQuery } from "@/redux/feature/userSlice";
+import { useAllUsersQuery, useDeleteUserMutation } from "@/redux/feature/userSlice";
 
 const FILTERS = ["ALL", "ACTIVE", "PENDING", "COMPLETED"] as const;
 const PAGE_SIZE = 6;
@@ -19,6 +20,11 @@ const avatarTones = [
 ];
 
 type FilterValue = (typeof FILTERS)[number];
+
+type DeleteUserTarget = {
+    id: number;
+    name: string;
+};
 
 function getInitials(name: string) {
     return name
@@ -68,14 +74,37 @@ function formatJoiningDate(rawDate: string) {
     });
 }
 
+function extractErrorMessage(error: unknown) {
+    if (typeof error === "object" && error !== null && "data" in error) {
+        const errorData = (error as { data?: unknown }).data;
+
+        if (typeof errorData === "object" && errorData !== null && "message" in errorData) {
+            const message = (errorData as { message?: unknown }).message;
+
+            if (typeof message === "string" && message.trim()) {
+                return message;
+            }
+        }
+    }
+
+    if (error instanceof Error && error.message.trim()) {
+        return error.message;
+    }
+
+    return "Failed to delete user. Please try again.";
+}
+
 export default function UserManagementClient() {
     const [activeFilter, setActiveFilter] = useState<FilterValue>("ALL");
     const [search, setSearch] = useState("");
     const [requestedPage, setRequestedPage] = useState(1);
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
     const [deletedIds, setDeletedIds] = useState<number[]>([]);
+    const [deleteTarget, setDeleteTarget] = useState<DeleteUserTarget | null>(null);
     const deferredSearch = useDeferredValue(search);
     const trimmedSearch = deferredSearch.trim();
+
+    const [deleteUser, { isLoading: isDeletingUser }] = useDeleteUserMutation();
 
     const statusParam = useMemo(() => {
         if (activeFilter === "ACTIVE") {
@@ -161,11 +190,30 @@ export default function UserManagementClient() {
         });
     }
 
-    function handleDelete(userId: number) {
-        setDeletedIds((previous) =>
-            previous.includes(userId) ? previous : [...previous, userId]
-        );
-        setSelectedIds((previous) => previous.filter((id) => id !== userId));
+    async function handleConfirmDelete() {
+        if (!deleteTarget) {
+            return;
+        }
+
+        try {
+            await deleteUser(String(deleteTarget.id)).unwrap();
+            setDeletedIds((previous) =>
+                previous.includes(deleteTarget.id) ? previous : [...previous, deleteTarget.id]
+            );
+            setSelectedIds((previous) => previous.filter((id) => id !== deleteTarget.id));
+            toast.success("User deleted successfully");
+            setDeleteTarget(null);
+        } catch (error) {
+            toast.error(extractErrorMessage(error));
+        }
+    }
+
+    function closeDeleteModal() {
+        if (isDeletingUser) {
+            return;
+        }
+
+        setDeleteTarget(null);
     }
 
     return (
@@ -198,7 +246,7 @@ export default function UserManagementClient() {
                         </div>
                     </div>
 
-                    <label className="flex h-12 w-full items-center gap-3 border border-[#D0D5DD] bg-white px-4 text-[#667085] shadow-sm xl:max-w-[400px]">
+                    <label className="flex h-12 w-full items-center gap-3 border border-[#D0D5DD] bg-white px-4 text-[#667085] shadow-sm xl:max-w-100">
                         <Search className="size-5 text-[#98A2B3]" />
                         <input
                             value={search}
@@ -214,7 +262,7 @@ export default function UserManagementClient() {
                 <table className="min-w-full border-collapse">
                     <thead>
                         <tr className="bg-[#F3F4F6] text-left text-sm uppercase italic text-[#667085]">
-                            <th className="w-[90px] px-6 py-4 text-base font-medium">
+                            <th className="w-22.5 px-6 py-4 text-base font-medium">
                                 <label className="flex items-center gap-3">
                                     <input
                                         type="checkbox"
@@ -300,7 +348,7 @@ export default function UserManagementClient() {
                                         <div className="flex items-center gap-3">
                                             <button
                                                 type="button"
-                                                onClick={() => handleDelete(user.id)}
+                                                onClick={() => setDeleteTarget({ id: user.id, name: user.name })}
                                                 className="rounded-full p-2 text-[#4B5563] transition-colors hover:bg-[#FFF1F1] hover:text-[#F65353]"
                                                 aria-label={`Delete ${user.name}`}
                                             >
@@ -415,7 +463,7 @@ export default function UserManagementClient() {
                                 </Link>
                                 <button
                                     type="button"
-                                    onClick={() => handleDelete(user.id)}
+                                    onClick={() => setDeleteTarget({ id: user.id, name: user.name })}
                                     className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-[#F1B8B8] bg-[#FFF5F5] px-4 text-sm font-medium text-[#F65353] transition-colors hover:bg-[#FFE9E9]"
                                 >
                                     <Trash2 className="size-4" />
@@ -426,6 +474,53 @@ export default function UserManagementClient() {
                     ))
                 )}
             </div>
+
+            {deleteTarget ? (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm">
+                    <div className="w-full max-w-md rounded-[24px] border border-[#E4E7EC] bg-white p-6 shadow-[0_20px_60px_rgba(15,23,42,0.18)]">
+                        <div className="flex items-start justify-between gap-4">
+                            <div className="space-y-2">
+                                <div className="flex size-12 items-center justify-center rounded-full bg-[#FFF1F1] text-[#F65353]">
+                                    <Trash2 className="size-6" />
+                                </div>
+                                <h2 className="text-xl font-semibold text-[#1F1F1F]">Delete user</h2>
+                                <p className="text-sm leading-6 text-[#667085]">
+                                    Are you sure you want to delete <span className="font-semibold text-[#1F1F1F]">{deleteTarget.name}</span>? This action cannot be undone.
+                                </p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={closeDeleteModal}
+                                className="rounded-full p-2 text-[#98A2B3] transition-colors hover:bg-[#F2F4F7] hover:text-[#1F1F1F]"
+                                aria-label="Close delete dialog"
+                                disabled={isDeletingUser}
+                            >
+                                <X className="size-5" />
+                            </button>
+                        </div>
+
+                        <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+                            <button
+                                type="button"
+                                onClick={closeDeleteModal}
+                                disabled={isDeletingUser}
+                                className="inline-flex h-11 items-center justify-center rounded-xl border border-[#D0D5DD] px-5 text-sm font-medium text-[#344054] transition-colors hover:bg-[#F9FAFB] disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleConfirmDelete}
+                                disabled={isDeletingUser}
+                                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#F65353] px-5 text-sm font-medium text-white transition-colors hover:bg-[#E54848] disabled:cursor-not-allowed disabled:opacity-70"
+                            >
+                                {isDeletingUser ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
+                                {isDeletingUser ? "Deleting..." : "Delete user"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            ) : null}
 
             <UserManagementPagination
                 currentPage={currentPage}

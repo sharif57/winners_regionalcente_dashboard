@@ -256,7 +256,18 @@ export const userApi = baseApi.injectEndpoints({
       providesTags: (result, error, id) => [{ type: "User", id }],
     }),
 
+    // DELETE
+    // /api/v1/auth/users/{id}/
+
+    deleteUser: builder.mutation({
+      query: (id) => ({
+        url: `/auth/users/${id}/`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["User"],
+    }),
+
   }),
 });
 
-export const { useUserProfileQuery, useUpdateProfileMutation, useAllUsersQuery, useSingleUserQuery } = userApi;
+export const { useUserProfileQuery, useUpdateProfileMutation, useAllUsersQuery, useSingleUserQuery, useDeleteUserMutation } = userApi;
