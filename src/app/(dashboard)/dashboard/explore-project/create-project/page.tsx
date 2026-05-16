@@ -417,7 +417,7 @@ const CreateProjectPage = () => {
                         <div className="space-y-2">
                             <label className="text-xs font-medium text-[#667085] ml-1">Job Impact</label>
                             <input
-                                type="text"
+                                type="number"
                                 name="job_impact"
                                 value={formData.job_impact}
                                 onChange={handleInputChange}

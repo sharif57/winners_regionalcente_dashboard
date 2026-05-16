@@ -127,10 +127,10 @@ export default function ExploreProject() {
                     amount: String(investor.amount ?? investor.invested_amount ?? investor.investment_amount ?? "-"),
                     email: String(investor.email ?? investor.gmail ?? "-"),
                     phone: String(investor.phone ?? investor.mobile ?? "-"),
-                    country: String(investor.country ?? "-"),
+                    country: String(investor.current_country_of_residence ?? investor.country ?? "-"),
                     date: String(investor.date ?? investor.joining_date ?? investor.created_at ?? "-"),
                     status: String(investor.status ?? "Active"),
-                    image: String(investor.image ?? investor.avatar ?? "/image/background6.png"),
+                    profile_image: String((investor.profil_image as string) ?? (investor.profile_image as string) ?? (investor.image as string) ?? (investor.avatar as string) ?? "/image/background6.png"),
                 };
             });
         }
@@ -148,10 +148,10 @@ export default function ExploreProject() {
                         amount: String(investor.amount ?? investor.invested_amount ?? investor.investment_amount ?? "-"),
                         email: String(investor.email ?? investor.gmail ?? "-"),
                         phone: String(investor.phone ?? investor.mobile ?? "-"),
-                        country: String(investor.country ?? "-"),
+                        country: String(investor.current_country_of_residence ?? investor.country ?? "-"),
                         date: String(investor.date ?? investor.joining_date ?? investor.created_at ?? "-"),
                         status: String(investor.status ?? "Active"),
-                        image: String(investor.image ?? investor.avatar ?? "/image/background6.png"),
+                        profile_image: String((investor.profil_image as string) ?? (investor.profile_image as string) ?? (investor.image as string) ?? (investor.avatar as string) ?? "/image/background6.png"),
                     };
                 });
             }

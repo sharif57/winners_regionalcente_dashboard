@@ -123,7 +123,7 @@ import { useAuth } from "@/context/AuthContext";
 
 const menuItems = [
     { label: "Overview", icon: LayoutDashboard, href: "/dashboard" },
-    { label: "Evaluation", icon: Cast, href: "/dashboard/evaluation" },
+    { label: "Agreements Process", icon: Cast, href: "/dashboard/evaluation" },
     { label: "Evaluation Requests List", icon: GitPullRequestArrow, href: "/dashboard/evaluation-requests-list" },
     { label: "User Management", icon: Briefcase, href: "/dashboard/user-management", adminOnly: true },
     { label: "Project", icon: PlusCircle, href: "/dashboard/explore-project" },

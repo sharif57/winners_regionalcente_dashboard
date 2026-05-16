@@ -7,7 +7,7 @@ import ProjectFilterTabs from "@/components/dashboard/explore-project/ProjectFil
 import Pagination from "@/components/dashboard/explore-project/Pagination";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { type ProjectItem, useProjectListQuery } from "@/redux/feature/projectSlice";
+import { type ProjectItem, useDeleteProjectMutation, useProjectListQuery, useUpdateProjectMutation } from "@/redux/feature/projectSlice";
 
 const PAGE_SIZE = 4;
 
@@ -120,6 +120,9 @@ export default function ExploreProjectPage() {
     }), [activeTab, currentPage, trimmedSearchQuery]);
 
     const { data: projectsData, isLoading, isFetching } = useProjectListQuery(queryParams);
+
+    const [updateProject] =useUpdateProjectMutation();
+    const [deleteProject] = useDeleteProjectMutation();
 
     const projects = useMemo(
         () => (projectsData?.data ?? []).map(mapProjectToCard),

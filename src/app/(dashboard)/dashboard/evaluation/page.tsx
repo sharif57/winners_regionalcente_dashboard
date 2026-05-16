@@ -206,9 +206,9 @@ export default function Evaluation() {
         <div className="bg-white px-4 py-6 sm:px-6 sm:py-8">
             <div className="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
                 <div>
-                    <h1 className="mb-4 text-2xl font-bold italic text-[#1F1F1F] sm:text-[32px]">Evaluation Request</h1>
+                    <h1 className="mb-4 text-2xl font-bold italic text-[#1F1F1F] sm:text-[32px]">Agreements Process</h1>
 
-                    <div className="flex gap-6 overflow-x-auto border-b border-[#EAECF0] pb-2 sm:gap-7">
+                    {/* <div className="flex gap-6 overflow-x-auto border-b border-[#EAECF0] pb-2 sm:gap-7">
                         {[
                             { id: "all", label: "All" },
                             { id: "pending", label: "Pending" },
@@ -233,7 +233,7 @@ export default function Evaluation() {
                                 {tab.label}
                             </button>
                         ))}
-                    </div>
+                    </div> */}
                 </div>
 
                 <Link

@@ -104,6 +104,27 @@ const projectSlice = baseApi.injectEndpoints({
       providesTags: (result, error, id) => [{ type: "Project", id }],
     }),
 
+//     PATCH
+// /api/v1/projects/{id}/
+    updateProject: builder.mutation({
+      query: ({ id, data }) => ({
+        url: `/projects/${id}/`,
+        method: "PATCH",
+        body: data,
+        formData: true,
+      }),
+      invalidatesTags: ["Project"],
+    }),
+
+    // delete project
+    deleteProject: builder.mutation({
+      query: (id) => ({
+        url: `/projects/${id}/`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Project"],
+    }),
+
     // /projects/my_projects/
     myProjects: builder.query<ProjectListResponse, ProjectListParams | void>({
       query: (params) => ({
@@ -144,6 +165,35 @@ const projectSlice = baseApi.injectEndpoints({
        providesTags: ["Project"],
     }),
 
+// /api/v1/investments/{id}/
+
+    projectInvestorDetails: builder.query({
+      query: (id) => ({
+        url: `/investments/${id}/`, 
+        method: "GET",
+      }),
+       providesTags: ["Project"],
+    }),
+
+    // update project status  
+    updateInvestmentStatus: builder.mutation({
+      query: ({ id, data }) => ({
+        url: `/investments/${id}/`, 
+        method: "PATCH",
+        body: data,
+      }),
+       invalidatesTags: ["Project"],
+    }),
+
+    // delete investment
+    deleteInvestor: builder.mutation({
+      query: (id) => ({
+        url: `/investments/${id}/`, 
+        method: "DELETE",
+      }),
+       invalidatesTags: ["Project"],
+    }),
+
   }),
 });
 
@@ -151,7 +201,12 @@ export const {
   useProjectListQuery,
   useProjectDetailsQuery,
   useMyProjectsQuery,
+  useUpdateProjectMutation,
+  useDeleteProjectMutation,
   useNotificationListQuery,
   useCreateProjectsMutation,
   useProjectDetailsInvestorsQuery,
+  useProjectInvestorDetailsQuery,
+  useUpdateInvestmentStatusMutation,
+  useDeleteInvestorMutation,
 } = projectSlice;

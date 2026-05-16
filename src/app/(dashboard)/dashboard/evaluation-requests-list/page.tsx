@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, Mail, MessageSquareText, Sparkles, X } from 'lucide-react';
+import { CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, Mail, MessageSquareText, Phone, Sparkles, X } from 'lucide-react';
 import { useApprovedEvaluationRequestMutation, useGetEvaluationRequestsListQuery } from '@/redux/feature/evaluationSlice';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 type EvaluationRequest = {
     id: number;
     email: string;
+    phone: string;
     full_name: string;
     message: string;
     is_approved: boolean;
@@ -140,7 +141,7 @@ export default function EvaluationRequestList() {
 
     return (
         <section className="space-y-8  py-6  sm:py-8 ">
-            <div className="relative overflow-hidden rounded-[32px] border border-[#E8E3DD] bg-[linear-gradient(135deg,#FFF8F5_0%,#FFFFFF_42%,#F7F9FC_100%)] p-6 shadow-[0_20px_60px_rgba(17,24,39,0.06)] sm:p-8">
+            <div className="relative overflow-hidden  border border-[#E8E3DD] bg-[linear-gradient(135deg,#FFF8F5_0%,#FFFFFF_42%,#F7F9FC_100%)] p-6 shadow-[0_20px_60px_rgba(17,24,39,0.06)] sm:p-8">
                 <div className="absolute -right-20 -top-20 size-52 rounded-full bg-[#F65353]/10 blur-3xl" />
                 <div className="absolute -bottom-24 left-1/3 size-56 rounded-full bg-[#B21F1F]/10 blur-3xl" />
 
@@ -178,7 +179,7 @@ export default function EvaluationRequestList() {
                 </div>
             </div>
 
-            <div className="flex flex-col gap-4 rounded-[28px] border border-[#EAECF0] bg-white p-4 shadow-[0_16px_40px_rgba(17,24,39,0.05)] sm:p-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-col gap-4  border border-[#EAECF0] bg-white p-4 shadow-[0_16px_40px_rgba(17,24,39,0.05)] sm:p-6 lg:flex-row lg:items-center lg:justify-between">
                 <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#667085]">Current Page</p>
                     <h2 className="mt-1 text-lg font-semibold text-[#1F1F1F]">
@@ -216,7 +217,7 @@ export default function EvaluationRequestList() {
                         {requests.map((request) => (
                             <article
                                 key={request.id}
-                                className="group rounded-[28px] border border-[#EAECF0] bg-white p-5 shadow-[0_12px_32px_rgba(17,24,39,0.05)] transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_18px_38px_rgba(17,24,39,0.09)]"
+                                className="group  border border-[#EAECF0] bg-white p-5 shadow-[0_12px_32px_rgba(17,24,39,0.05)] transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_18px_38px_rgba(17,24,39,0.09)]"
                             >
                                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                                     <div className="flex items-start gap-4">
@@ -246,13 +247,27 @@ export default function EvaluationRequestList() {
                                                 </button>
                                             </div>
 
-                                            <a
-                                                href={`mailto:${request.email}`}
-                                                className="inline-flex items-center gap-2 text-sm text-[#667085] transition-colors hover:text-[#B21F1F]"
-                                            >
-                                                <Mail className="size-4" />
-                                                {request.email}
-                                            </a>
+                                            <div className=' flex flex-col gap-2'>
+                                                <a
+                                                    href={`mailto:${request.email}`}
+                                                    className="inline-flex items-center gap-2 text-sm text-[#667085] transition-colors hover:text-[#B21F1F]"
+                                                >
+                                                    <Mail className="size-4" />
+                                                    {request.email}
+                                                </a>
+                                                {
+                                                    request?.phone && (
+                                                        <a
+                                                            href={`tel:${request.phone}`}
+                                                            className="inline-flex items-center gap-2 text-sm text-[#667085] transition-colors hover:text-[#B21F1F]"
+                                                        >
+                                                            <Phone className="size-4" />
+                                                            {request.phone}
+                                                        </a>
+                                                    )
+                                                }
+                                            </div>
+
                                         </div>
                                     </div>
 
