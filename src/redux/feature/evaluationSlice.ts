@@ -1,4 +1,3 @@
-import { create } from "domain";
 import baseApi from "../Api/baseApi";
 
 
@@ -25,7 +24,7 @@ const settingSlice = baseApi.injectEndpoints({
     }),
 
     // /investments/
-    projectInvestments: builder.mutation({
+    createProjectInvestment: builder.mutation({
       query: (data) => ({
         url: `/investments/`,
         method: "POST",
@@ -109,8 +108,27 @@ const settingSlice = baseApi.injectEndpoints({
       method: "DELETE",
     }),
     invalidatesTags: ["Evaluation"],
-  })
+  }),
 
+  // /evaluation-requests/
+  getEvaluationRequestsList: builder.query({
+    query: (params) => ({
+      url: `/evaluation-requests/`,
+      method: "GET",
+      params: params ?? undefined,
+    }),
+    providesTags: ["Evaluation"],
+  }),
+
+  // /evaluation-requests/<<id>>/
+  approvedEvaluationRequest: builder.mutation({
+    query: ({ id, data }) => ({
+      url: `/evaluation-requests/${id}/`,
+      method: "PATCH",
+      body: data,
+    }),
+    invalidatesTags: ["Evaluation"],
+  }),
 
   }),
 });
@@ -118,7 +136,7 @@ const settingSlice = baseApi.injectEndpoints({
 export const {
   useSendEvaluationRequestMutation,
   useGetUserDashboardQuery,
-  useProjectInvestmentsMutation,
+  useCreateProjectInvestmentMutation,
   useUserAgreementsQuery,
   useReviewAgreementStepMutation,
   useAgreementDetailsQuery,
@@ -127,4 +145,6 @@ export const {
   useCreateAgreementFormMutation,
   useUpdateAgreementFormMutation,
   useDeleteAgreementFormMutation,
+  useGetEvaluationRequestsListQuery,
+  useApprovedEvaluationRequestMutation,
 } = settingSlice;
