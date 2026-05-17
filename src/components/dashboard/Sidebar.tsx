@@ -128,6 +128,7 @@ const menuItems = [
     { label: "User Management", icon: Briefcase, href: "/dashboard/user-management", adminOnly: true },
     { label: "Project", icon: PlusCircle, href: "/dashboard/explore-project" },
     { label: "Notification", icon: Bell, href: "/dashboard/notifications" },
+    { label: "Blog", icon: Cast, href: "/dashboard/blog" },
     { label: "Settings", icon: Settings, href: "/dashboard/settings" },
     { label: "Support", icon: Headphones, href: "/dashboard/support" },
 ];
