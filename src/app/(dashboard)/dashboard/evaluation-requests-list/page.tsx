@@ -119,7 +119,7 @@ export default function EvaluationRequestList() {
     };
 
     const handleApproveRequest = async () => {
-        if (!activeModal || activeModal.type !== 'approve') {
+        if (!activeModal || activeModal.request.is_approved) {
             return;
         }
 
@@ -217,7 +217,16 @@ export default function EvaluationRequestList() {
                         {requests.map((request) => (
                             <article
                                 key={request.id}
-                                className="group  border border-[#EAECF0] bg-white p-5 shadow-[0_12px_32px_rgba(17,24,39,0.05)] transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_18px_38px_rgba(17,24,39,0.09)]"
+                                role="button"
+                                tabIndex={0}
+                                onClick={() => handleOpenMessage(request)}
+                                onKeyDown={(event) => {
+                                    if (event.key === 'Enter' || event.key === ' ') {
+                                        event.preventDefault();
+                                        handleOpenMessage(request);
+                                    }
+                                }}
+                                className="group cursor-pointer border border-[#EAECF0] bg-white p-5 shadow-[0_12px_32px_rgba(17,24,39,0.05)] transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_18px_38px_rgba(17,24,39,0.09)]"
                             >
                                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                                     <div className="flex items-start gap-4">
@@ -230,7 +239,8 @@ export default function EvaluationRequestList() {
                                                 <h3 className="text-lg font-semibold text-[#1F1F1F]">{request.full_name}</h3>
                                                 <button
                                                     type="button"
-                                                    onClick={() => {
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
                                                         if (!request.is_approved) {
                                                             handleOpenApprove(request);
                                                         }
@@ -250,6 +260,7 @@ export default function EvaluationRequestList() {
                                             <div className=' flex flex-col gap-2'>
                                                 <a
                                                     href={`mailto:${request.email}`}
+                                                    onClick={(event) => event.stopPropagation()}
                                                     className="inline-flex items-center gap-2 text-sm text-[#667085] transition-colors hover:text-[#B21F1F]"
                                                 >
                                                     <Mail className="size-4" />
@@ -259,6 +270,7 @@ export default function EvaluationRequestList() {
                                                     request?.phone && (
                                                         <a
                                                             href={`tel:${request.phone}`}
+                                                            onClick={(event) => event.stopPropagation()}
                                                             className="inline-flex items-center gap-2 text-sm text-[#667085] transition-colors hover:text-[#B21F1F]"
                                                         >
                                                             <Phone className="size-4" />
@@ -286,7 +298,10 @@ export default function EvaluationRequestList() {
                                         <p className="mt-3 line-clamp-4 text-sm leading-6 text-[#344054]">{getPreview(request.message)}</p>
                                         <button
                                             type="button"
-                                            onClick={() => handleOpenMessage(request)}
+                                            onClick={(event) => {
+                                                event.stopPropagation();
+                                                handleOpenMessage(request);
+                                            }}
                                             className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#B21F1F] transition-colors hover:text-[#8B1818]"
                                         >
                                             See more
@@ -425,17 +440,17 @@ export default function EvaluationRequestList() {
                                 Close
                             </Button>
 
-                            {activeModal.type === 'approve' && !activeModal.request.is_approved && (
-                                <Button
-                                    type="button"
-                                    className="h-11 bg-[#B21F1F] px-5 text-sm font-semibold text-white hover:bg-[#8B1818]"
-                                    onClick={handleApproveRequest}
-                                    disabled={isApproving}
-                                >
-                                    <CheckCircle2 className="size-4" />
-                                    {isApproving ? 'Approving...' : 'Approve Request'}
-                                </Button>
-                            )}
+                            {/* {activeModal.type === 'approve' && !activeModal.request.is_approved && ( */}
+                            <Button
+                                type="button"
+                                className="h-11 bg-[#B21F1F] px-5 text-sm font-semibold text-white hover:bg-[#8B1818]"
+                                onClick={handleApproveRequest}
+                                disabled={isApproving}
+                            >
+                                <CheckCircle2 className="size-4" />
+                                {isApproving ? 'Approving...' : 'Approve Request'}
+                            </Button>
+                            {/* )} */}
                         </div>
                     </div>
                 </div>

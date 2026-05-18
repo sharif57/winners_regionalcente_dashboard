@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import { X, Loader2 } from "lucide-react";
 import { useProjectDetailsQuery, useUpdateProjectMutation } from "@/redux/feature/projectSlice";
 // import { useGetProjectByIdQuery, useUpdateProjectMutation } from "@/redux/feature/projectSlice";
@@ -28,6 +29,8 @@ export default function UpdateProjectModal({ projectId, onClose }: Props) {
         job_impact: "",
         status: "active",
     });
+    const [bannerFile, setBannerFile] = useState<File | null>(null);
+    const [bannerPreview, setBannerPreview] = useState("");
 
     useEffect(() => {
         if (data?.data) {
@@ -46,11 +49,26 @@ export default function UpdateProjectModal({ projectId, onClose }: Props) {
                 job_impact: p.job_impact ?? "",
                 status: p.status ?? "active",
             });
+            setBannerPreview(p.banner ?? "");
+            setBannerFile(null);
         }
     }, [data]);
 
     function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
         setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    }
+
+    function handleBannerChange(e: React.ChangeEvent<HTMLInputElement>) {
+        const file = e.target.files?.[0] ?? null;
+
+        setBannerFile(file);
+
+        if (!file) {
+            return;
+        }
+
+        const previewUrl = URL.createObjectURL(file);
+        setBannerPreview(previewUrl);
     }
 
     async function handleSubmit(e: React.FormEvent) {
@@ -69,6 +87,9 @@ export default function UpdateProjectModal({ projectId, onClose }: Props) {
         formData.append("roi", form.roi);
         formData.append("job_impact", form.job_impact);
         formData.append("status", form.status);
+        if (bannerFile) {
+            formData.append("banner", bannerFile);
+        }
 
         try {
             await updateProject({ id: projectId, data: formData }).unwrap();
@@ -79,7 +100,7 @@ export default function UpdateProjectModal({ projectId, onClose }: Props) {
     }
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 px-4">
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/50 px-4">
             <div className="bg-white w-full max-w-2xl rounded-sm shadow-xl max-h-[90vh] flex flex-col">
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-[#F2F2F2]">
@@ -164,6 +185,44 @@ export default function UpdateProjectModal({ projectId, onClose }: Props) {
                                     <option value="active">Active</option>
                                     <option value="completed">Completed</option>
                                 </select>
+                            </Field>
+
+                            <Field label="Project Image">
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-4 rounded-sm border border-dashed border-[#E0E0E0] bg-[#FCFCFC] p-3">
+                                        <div className="relative h-20 w-20 overflow-hidden rounded-sm border border-[#E0E0E0] bg-white">
+                                            {bannerPreview ? (
+                                                <Image
+                                                    src={bannerPreview}
+                                                    alt="Project banner preview"
+                                                    fill
+                                                    className="object-cover"
+                                                    unoptimized
+                                                />
+                                            ) : (
+                                                <div className="flex h-full w-full items-center justify-center text-xs text-[#9E9E9E]">
+                                                    No image
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="min-w-0 flex-1">
+                                            <p className="text-sm font-medium text-[#1F1F1F]">
+                                                {bannerFile ? bannerFile.name : "Current project banner"}
+                                            </p>
+                                            <p className="mt-1 text-xs text-[#696969]">
+                                                Select a new image to replace the existing banner.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleBannerChange}
+                                        className="block w-full text-sm text-[#696969] file:mr-4 file:border-0 file:bg-[#434D64] file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-[#121E38]"
+                                    />
+                                </div>
                             </Field>
                         </form>
                     )}

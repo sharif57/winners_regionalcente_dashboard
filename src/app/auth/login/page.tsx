@@ -9,8 +9,8 @@ import { useAuth } from "@/context/AuthContext";
 import { toast } from "sonner";
 
 export default function LoginPage() {
-    const [email, setEmail] = useState("admin@example.com");
-    const [password, setPassword] = useState("password123");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -79,12 +79,12 @@ export default function LoginPage() {
                 >
                     Sign In
                 </Button>
-                <Button
+                {/* <Button
                     variant="outline"
                     className="bg-transparent border-[#E5E7EB] hover:bg-gray-50 text-[#1F1F1F] px-10 py-6 text-sm font-bold uppercase tracking-widest rounded-none transform transition-all"
                 >
                     <Link href="/auth/register">Sign Up</Link>
-                </Button>
+                </Button> */}
             </div>
 
             {/* Form Box Section */}
@@ -169,23 +169,7 @@ export default function LoginPage() {
                 </div>
             </form>
 
-            <div className="space-y-6">
-                <p className="text-center text-[#696969] text-sm font-medium">
-                    Don&lsquo;t have an account?{" "}
-                    <Link
-                        href="/auth/register"
-                        className="text-[#F65353] font-bold uppercase hover:underline transition-all"
-                    >
-                        Sign Up
-                    </Link>
-                </p>
 
-                {/* Demo Credentials Hint */}
-                <div className="bg-blue-50 border border-blue-100 p-4 text-center">
-                    <p className="text-xs text-blue-600 font-medium uppercase tracking-wider mb-1">Demo Credentials</p>
-                    <p className="text-xs text-gray-600 italic">Email: admin@example.com | Password: password123</p>
-                </div>
-            </div>
         </div>
     );
 }
