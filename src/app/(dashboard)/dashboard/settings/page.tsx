@@ -745,7 +745,9 @@ const QUILL_STYLES = `
     font-family: inherit;
 }
 .ql-editor {
-    min-height: 340px !important;
+    min-block-size: 340px !important;
+    max-block-size: 520px !important;
+    overflow-y: auto !important;
     font-size: 15px !important;
     line-height: 1.8 !important;
     color: #3A3A3A !important;
