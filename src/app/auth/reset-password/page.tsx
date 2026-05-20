@@ -5,13 +5,13 @@ import Link from "next/link";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useResetPasswordMutation } from "@/redux/feature/authSlice";
 
 function ResetPasswordPage() {
     // http://localhost:3000/auth/reset-password?reset_token=5PdWRVN0Dr73KPO93FRKJ0CB8-JIaxcxHWBclU9_Hys
 
-    const searchParams = new URLSearchParams(window.location.search);
+    const searchParams = useSearchParams();
     const resetToken = searchParams.get("reset_token");
     console.log(resetToken)
 
