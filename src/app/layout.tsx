@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Wimers Regiond Center Dashboard",
+  title: "Winners Regional Center dashboard",
   description: "Brand-first design system with Lato typography",
 };
 
