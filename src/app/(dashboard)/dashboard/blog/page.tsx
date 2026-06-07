@@ -786,6 +786,8 @@ type BlogFormState = {
     content: string;
 };
 
+type BlogFormSnapshot = Pick<BlogFormState, "title" | "featured_image" | "content">;
+
 type ModalMode = "create" | "edit" | null;
 
 // ─── Quill Rich Text Editor ───────────────────────────────────────────────────
@@ -1099,6 +1101,7 @@ export default function Blog() {
     const [viewTargetId, setViewTargetId] = useState<number | null>(null);
     const [deleteTarget, setDeleteTarget] = useState<BlogPost | null>(null);
     const [editingId, setEditingId] = useState<number | null>(null);
+    const [editingSnapshot, setEditingSnapshot] = useState<BlogFormSnapshot | null>(null);
     const [formState, setFormState] = useState<BlogFormState>(initialFormState());
 
     const queryParams = useMemo(() => ({ page: currentPage, page_size: PAGE_SIZE }), [currentPage]);
@@ -1139,18 +1142,21 @@ export default function Blog() {
     function openCreateModal() {
         setMode("create");
         setEditingId(null);
+        setEditingSnapshot(null);
         setFormState(initialFormState());
     }
 
     function openEditModal(post: BlogPost) {
         setMode("edit");
         setEditingId(post.id);
+        setEditingSnapshot({ title: post.title, featured_image: post.featured_image, content: post.content });
         setFormState({ title: post.title, featured_image: post.featured_image, featured_image_file: null, content: post.content });
     }
 
     function closeEditor() {
         setMode(null);
         setEditingId(null);
+        setEditingSnapshot(null);
     }
 
     function openViewModal(id: number) { setViewTargetId(id); }
@@ -1162,21 +1168,55 @@ export default function Blog() {
         if (previewImageUrl.startsWith("blob:")) URL.revokeObjectURL(previewImageUrl);
     }, [previewImageUrl]);
 
+    function buildUpdatePayload() {
+        const payload = new FormData();
+
+        if (!editingSnapshot) {
+            return payload;
+        }
+
+        if (formState.title !== editingSnapshot.title) {
+            payload.append("title", formState.title);
+        }
+
+        if (formState.content !== editingSnapshot.content) {
+            payload.append("content", formState.content);
+        }
+
+        if (isFileLike(formState.featured_image_file)) {
+            payload.append("featured_image", formState.featured_image_file);
+        } else if (formState.featured_image !== editingSnapshot.featured_image) {
+            payload.append("featured_image", formState.featured_image);
+        }
+
+        return payload;
+    }
+
     async function handleSubmit() {
         try {
-            const payload = new FormData();
-            payload.append("title", formState.title);
-            payload.append("content", formState.content);
-            if (isFileLike(formState.featured_image_file)) {
-                payload.append("featured_image", formState.featured_image_file);
-            } else if (formState.featured_image) {
-                payload.append("featured_image", formState.featured_image);
-            }
             if (mode === "create") {
+                const payload = new FormData();
+                payload.append("title", formState.title);
+                payload.append("content", formState.content);
+
+                if (isFileLike(formState.featured_image_file)) {
+                    payload.append("featured_image", formState.featured_image_file);
+                } else if (formState.featured_image) {
+                    payload.append("featured_image", formState.featured_image);
+                }
+
                 await createBlogPost(payload).unwrap();
             } else if (mode === "edit" && editingId !== null) {
+                const payload = buildUpdatePayload();
+
+                if (![...payload.keys()].length) {
+                    closeEditor();
+                    return;
+                }
+
                 await updateBlogPost({ id: editingId, data: payload }).unwrap();
             }
+
             closeEditor();
         } catch (error) {
             console.error("Failed to save blog post:", error);
