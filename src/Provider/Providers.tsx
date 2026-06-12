@@ -6,6 +6,7 @@ import { Provider } from "react-redux";
 import { usePathname, useRouter } from "next/navigation";
 import { Toaster } from "sonner";
 import { getTokenExpiryMs } from "@/lib/jwt";
+import { clearAuthStorage, notifyAuthLogout } from "@/lib/auth-storage";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -19,22 +20,20 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     }
 
     const logout = () => {
-      localStorage.removeItem("accessToken");
-      document.cookie =
-        "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; samesite=lax";
+      clearAuthStorage();
+      notifyAuthLogout();
 
       const isOnAuthRoute = window.location.pathname.startsWith("/auth");
 
       if (!isOnAuthRoute) {
-        router.replace("/auth");
+        router.replace("/auth/login");
         router.refresh();
       }
     };
 
     const expiryMs = getTokenExpiryMs(token);
 
-    if (!expiryMs) {
-      logout();
+    if (expiryMs === null) {
       return;
     }
 

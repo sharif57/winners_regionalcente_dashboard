@@ -16,14 +16,15 @@ export default function LoginPage() {
     const [error, setError] = useState<string | null>(null);
 
     const router = useRouter();
-    const { login, isAuthenticated } = useAuth();
+    const { login, isAuthenticated, isLoading, user } = useAuth();
+    const isAdmin = user?.role?.toLowerCase() === "admin";
 
     // Redirect if already authenticated
     useEffect(() => {
-        if (isAuthenticated) {
-            router.push("/dashboard");
+        if (!isLoading && isAuthenticated && isAdmin) {
+            router.replace("/dashboard");
         }
-    }, [isAuthenticated, router]);
+    }, [isAuthenticated, isAdmin, isLoading, router]);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();

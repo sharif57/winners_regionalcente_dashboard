@@ -2,6 +2,8 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { AUTH_LOGOUT_EVENT, clearAuthStorage } from "@/lib/auth-storage";
+import { getTokenExpiryMs } from "@/lib/jwt";
 
 interface User {
     id?: number;
@@ -55,19 +57,52 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Hydrate authentication state from localStorage on mount
         const initializeAuth = () => {
             try {
+                const token = localStorage.getItem("accessToken");
                 const storedUser = localStorage.getItem("wimers_user");
-                if (storedUser) {
-                    setUser(JSON.parse(storedUser));
+
+                if (!token || !storedUser) {
+                    clearAuthStorage();
+                    setUser(null);
+                    return;
                 }
+
+                const expiryMs = getTokenExpiryMs(token);
+
+                if (expiryMs !== null && expiryMs <= Date.now()) {
+                    clearAuthStorage();
+                    setUser(null);
+                    return;
+                }
+
+                const parsedUser = JSON.parse(storedUser) as User;
+
+                if (parsedUser.role?.toLowerCase() !== "admin") {
+                    clearAuthStorage();
+                    setUser(null);
+                    return;
+                }
+
+                setUser(parsedUser);
             } catch (error) {
                 console.error("Auth initialization failed:", error);
-                localStorage.removeItem("wimers_user");
+                clearAuthStorage();
+                setUser(null);
             } finally {
                 setIsLoading(false);
             }
         };
 
         initializeAuth();
+
+        const handleLogout = () => {
+            setUser(null);
+        };
+
+        window.addEventListener(AUTH_LOGOUT_EVENT, handleLogout);
+
+        return () => {
+            window.removeEventListener(AUTH_LOGOUT_EVENT, handleLogout);
+        };
     }, []);
 
     const login = async (email: string, password: string): Promise<boolean> => {
@@ -90,6 +125,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const role = data.data?.user?.role?.toLowerCase();
 
             if (role !== "admin") {
+                clearAuthStorage();
+                setUser(null);
                 return false;
             }
 
@@ -136,12 +173,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const logout = () => {
         setUser(null);
-        localStorage.removeItem("wimers_user");
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-        document.cookie =
-            "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; samesite=lax";
-        router.push("/auth/login");
+        clearAuthStorage();
+        router.replace("/auth/login");
     };
 
     return (

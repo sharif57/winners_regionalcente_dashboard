@@ -19,7 +19,7 @@ export default function DashboardLayout({
 
     useEffect(() => {
         if (!isLoading && (!isAuthenticated || !isAdmin)) {
-            router.push("/auth/login");
+            router.replace("/auth/login");
         }
     }, [isAuthenticated, isAdmin, isLoading, router]);
 

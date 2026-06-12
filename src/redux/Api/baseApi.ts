@@ -5,6 +5,7 @@ import {
   createApi,
   fetchBaseQuery,
 } from "@reduxjs/toolkit/query/react";
+import { clearAuthStorage, notifyAuthLogout } from "@/lib/auth-storage";
 
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: process.env.NEXT_PUBLIC_API_URL,
@@ -31,14 +32,13 @@ const baseQueryWithAutoLogout: BaseQueryFn<
   const result = await rawBaseQuery(args, api, extraOptions);
 
   if (typeof window !== "undefined" && result.error?.status === 401) {
-    localStorage.removeItem("accessToken");
-    document.cookie =
-      "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; samesite=lax";
+    clearAuthStorage();
+    notifyAuthLogout();
 
-    const isOnAuthRoute = window.location.pathname.startsWith("/auth");
+    const isOnAuthRoute = window.location.pathname.startsWith("/auth/login");
 
     if (!isOnAuthRoute) {
-      window.location.href = "/auth";
+      window.location.href = "/auth/login";
     }
   }
 
