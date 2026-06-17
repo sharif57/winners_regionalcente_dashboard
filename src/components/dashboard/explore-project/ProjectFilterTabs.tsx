@@ -12,7 +12,7 @@ const ProjectFilterTabs: React.FC<ProjectFilterTabsProps> = ({
   activeTab,
   setActiveTab,
 }) => {
-  const tabs = ["ALL", "ACTIVE", "COMPLETED"];
+  const tabs = ["ALL", "ACTIVE", 'PENDING', "COMPLETED"];
 
   return (
     <div className="flex items-center gap-6 lg:gap-10 mb-8 overflow-x-auto no-scrollbar">

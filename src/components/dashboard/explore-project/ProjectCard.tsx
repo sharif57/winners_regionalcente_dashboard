@@ -209,7 +209,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
 
             {/* Description */}
             <p className="text-[#696969] text-[15px] lg:text-[16px] font-normal mb-8 leading-relaxed max-w-120">
-              {description}
+              {description.slice(0, 100)}...
             </p>
 
             {/* Stats Section */}

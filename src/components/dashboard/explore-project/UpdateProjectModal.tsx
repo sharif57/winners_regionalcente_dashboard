@@ -183,6 +183,7 @@ export default function UpdateProjectModal({ projectId, onClose }: Props) {
                             <Field label="Status">
                                 <select name="status" value={form.status} onChange={handleChange} className={inputCls}>
                                     <option value="active">Active</option>
+                                    <option value="pending">Pending</option>
                                     <option value="completed">Completed</option>
                                 </select>
                             </Field>

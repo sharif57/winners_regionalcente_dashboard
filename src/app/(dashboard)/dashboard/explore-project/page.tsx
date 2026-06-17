@@ -11,12 +11,12 @@ import { type ProjectItem, useDeleteProjectMutation, useProjectListQuery, useUpd
 
 const PAGE_SIZE = 4;
 
-type FilterValue = "ALL" | "ACTIVE" | "COMPLETED";
+type FilterValue = "ALL" | "ACTIVE" | 'PENDING' | "COMPLETED";
 
 type ExploreProjectCard = {
     id: number;
     title: string;
-    status: "Active" | "Completed" | string;
+    status: "Active" | "Pending" | "Completed" | string;
     description: string;
     investment: string;
     roi: string;
@@ -121,7 +121,7 @@ export default function ExploreProjectPage() {
 
     const { data: projectsData, isLoading, isFetching } = useProjectListQuery(queryParams);
 
-    const [updateProject] =useUpdateProjectMutation();
+    const [updateProject] = useUpdateProjectMutation();
     const [deleteProject] = useDeleteProjectMutation();
 
     const projects = useMemo(
