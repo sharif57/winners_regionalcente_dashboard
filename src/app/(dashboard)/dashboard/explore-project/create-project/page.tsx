@@ -6,6 +6,7 @@ import Image from "next/image";
 import { ArrowLeft, MapPin, Calendar, Image as ImageIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCreateProjectsMutation } from "@/redux/feature/projectSlice";
+import RichTextEditor from "@/components/shareUI/RichTextEditor";
 
 const CreateProjectPage = () => {
     const router = useRouter();
@@ -276,14 +277,18 @@ const CreateProjectPage = () => {
                                 />
                                 {errors.name && <p className="text-xs text-[#B21F1F]">{errors.name}</p>}
                             </div>
-                            <div className="space-y-2 h-60 flex flex-col">
+                            <div className="space-y-2 h-[350px] flex flex-col">
                                 <label className="text-xs font-medium text-[#667085] ml-1">Short Description</label>
-                                <textarea
-                                    placeholder="Short Description"
-                                    name="short_description"
+                                <RichTextEditor
                                     value={formData.short_description}
-                                    onChange={handleInputChange}
-                                    className="w-full flex-1 p-4 bg-white border border-[#EAECF0] rounded-sm focus:outline-none focus:border-[#B21F1F] text-base font-normal resize-none"
+                                    onChange={(value) => {
+                                        setFormData((prev) => ({ ...prev, short_description: value }));
+                                        if (errors.short_description) {
+                                            setErrors((prev) => ({ ...prev, short_description: "" }));
+                                        }
+                                    }}
+                                    placeholder="Short Description"
+                                    className="flex-1"
                                 />
                                 {errors.short_description && <p className="text-xs text-[#B21F1F]">{errors.short_description}</p>}
                             </div>

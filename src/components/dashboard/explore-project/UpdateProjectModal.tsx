@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { X, Loader2 } from "lucide-react";
 import { useProjectDetailsQuery, useUpdateProjectMutation } from "@/redux/feature/projectSlice";
+import RichTextEditor from "@/components/shareUI/RichTextEditor";
 // import { useGetProjectByIdQuery, useUpdateProjectMutation } from "@/redux/feature/projectSlice";
 
 type Props = {
@@ -125,13 +126,12 @@ export default function UpdateProjectModal({ projectId, onClose }: Props) {
 
                             {/* Short Description */}
                             <Field label="Short Description">
-                                <textarea
-                                    name="short_description"
-                                    value={form.short_description}
-                                    onChange={handleChange}
-                                    rows={3}
-                                    className={inputCls}
-                                />
+                                <div className="h-48 mb-10">
+                                    <RichTextEditor
+                                        value={form.short_description}
+                                        onChange={(value) => setForm((prev) => ({ ...prev, short_description: value }))}
+                                    />
+                                </div>
                             </Field>
 
                             {/* Row: City & State */}

@@ -208,9 +208,10 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             </div>
 
             {/* Description */}
-            <p className="text-[#696969] text-[15px] lg:text-[16px] font-normal mb-8 leading-relaxed max-w-120">
-              {description.slice(0, 100)}...
-            </p>
+            <div 
+              className="text-[#696969] text-[15px] lg:text-[16px] font-normal mb-8 leading-relaxed max-w-120 line-clamp-3 prose-p:my-0 prose-headings:my-0"
+              dangerouslySetInnerHTML={{ __html: description }}
+            />
 
             {/* Stats Section */}
             <div className="flex flex-wrap items-center gap-y-4 gap-x-6 lg:gap- mb-8">

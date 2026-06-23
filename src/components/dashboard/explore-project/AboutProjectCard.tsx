@@ -22,9 +22,10 @@ export default function AboutProjectCard({
                     {status}
                 </span>
             </div>
-            <p className="mb-4 text-[14px] leading-relaxed text-[#696969] sm:text-[18px] font-normal">
-                {shortDescription}
-            </p>
+            <div 
+                className="mb-4 text-[14px] leading-relaxed text-[#696969] sm:text-[18px] font-normal prose-p:my-0 prose-headings:my-0"
+                dangerouslySetInnerHTML={{ __html: shortDescription }}
+            />
             <p className="text-[14px] leading-relaxed text-[#696969] sm:text-[18px] font-normal">
                 {description}
             </p>
