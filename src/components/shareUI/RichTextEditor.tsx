@@ -15,6 +15,7 @@ interface RichTextEditorProps {
 
 export default function RichTextEditor({ value, onChange, placeholder, className }: RichTextEditorProps) {
     const modules = useMemo(() => ({
+        table: true,
         toolbar: [
             [{ 'header': [1, 2, 3, false] }],
             ['bold', 'italic', 'underline', 'strike'],
@@ -27,7 +28,8 @@ export default function RichTextEditor({ value, onChange, placeholder, className
         'header',
         'bold', 'italic', 'underline', 'strike',
         'list', 'bullet',
-        'link'
+        'link',
+        'table', 'table-row', 'table-cell'
     ];
 
     return (
@@ -71,6 +73,41 @@ export default function RichTextEditor({ value, onChange, placeholder, className
                     flex-grow: 1;
                     overflow-y: auto;
                     min-height: 100px;
+                }
+                .rich-text-editor-container .ql-editor p {
+                    margin-bottom: 12px;
+                }
+                .rich-text-editor-container .ql-editor ul {
+                    list-style-type: disc !important;
+                    padding-left: 1.5rem !important;
+                    margin-bottom: 12px !important;
+                }
+                .rich-text-editor-container .ql-editor ol {
+                    list-style-type: decimal !important;
+                    padding-left: 1.5rem !important;
+                    margin-bottom: 12px !important;
+                }
+                .rich-text-editor-container .ql-editor li {
+                    list-style-type: inherit !important;
+                }
+                .rich-text-editor-container .ql-editor li::before {
+                    display: none !important;
+                }
+                .rich-text-editor-container .ql-editor table {
+                    border-collapse: collapse !important;
+                    width: 100% !important;
+                    margin-bottom: 1.5rem !important;
+                    border: 1px solid #E4E7EC !important;
+                }
+                .rich-text-editor-container .ql-editor td,
+                .rich-text-editor-container .ql-editor th {
+                    border: 1px solid #E4E7EC !important;
+                    padding: 10px 14px !important;
+                }
+                .rich-text-editor-container .ql-editor th {
+                    background-color: #F9FAFB;
+                    font-weight: 600;
+                    text-align: left;
                 }
                 .rich-text-editor-container:focus-within .ql-container,
                 .rich-text-editor-container:focus-within .ql-toolbar {

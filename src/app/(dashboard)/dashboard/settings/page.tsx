@@ -780,8 +780,14 @@ const QUILL_STYLES = `
 .ql-editor h1 { font-size: 24px; font-weight: 600; margin-bottom: 8px; }
 .ql-editor h2 { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
 .ql-editor h3 { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
-.ql-editor p { margin-bottom: 10px; }
-.ql-editor ul, .ql-editor ol { padding-left: 20px; margin-bottom: 10px; }
+.ql-editor p { margin-bottom: 12px; }
+.ql-editor ul { list-style-type: disc !important; padding-left: 1.5rem !important; margin-bottom: 12px !important; }
+.ql-editor ol { list-style-type: decimal !important; padding-left: 1.5rem !important; margin-bottom: 12px !important; }
+.ql-editor li { list-style-type: inherit !important; }
+.ql-editor li::before { display: none !important; }
+.ql-editor table { border-collapse: collapse !important; width: 100% !important; margin-bottom: 15px !important; border: 1px solid #E4E7EC !important; }
+.ql-editor td, .ql-editor th { border: 1px solid #E4E7EC !important; padding: 10px 14px !important; }
+.ql-editor th { background-color: #F9FAFB; font-weight: 600; text-align: left; }
 .ql-editor blockquote {
     border-left: 3px solid #C91E1E;
     padding-left: 14px;
@@ -860,6 +866,7 @@ function RichTextEditor({ value, onChange, placeholder = "Start writing here..."
                 theme: "snow",
                 placeholder,
                 modules: {
+                    table: true,
                     toolbar: [
                         [{ header: [1, 2, 3, false] }],
                         ["bold", "italic", "underline", "strike"],

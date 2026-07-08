@@ -122,8 +122,14 @@ const QUILL_STYLES = `
 .ql-editor h1 { font-size: 24px; font-weight: 600; margin-bottom: 8px; }
 .ql-editor h2 { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
 .ql-editor h3 { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
-.ql-editor p { margin-bottom: 10px; }
-.ql-editor ul, .ql-editor ol { padding-left: 20px; margin-bottom: 10px; }
+.ql-editor p { margin-bottom: 12px; }
+.ql-editor ul { list-style-type: disc !important; padding-left: 1.5rem !important; margin-bottom: 12px !important; }
+.ql-editor ol { list-style-type: decimal !important; padding-left: 1.5rem !important; margin-bottom: 12px !important; }
+.ql-editor li { list-style-type: inherit !important; }
+.ql-editor li::before { display: none !important; }
+.ql-editor table { border-collapse: collapse !important; width: 100% !important; margin-bottom: 15px !important; border: 1px solid #E4E7EC !important; }
+.ql-editor td, .ql-editor th { border: 1px solid #E4E7EC !important; padding: 10px 14px !important; }
+.ql-editor th { background-color: #F9FAFB; font-weight: 600; text-align: left; }
 .ql-editor blockquote {
     border-left: 3px solid #EA4335;
     padding-left: 14px;
@@ -216,6 +222,7 @@ function RichTextEditor({ value, onChange, placeholder = "Start writing here..."
                 theme: "snow",
                 placeholder,
                 modules: {
+                    table: true,
                     toolbar: [
                         [{ header: [1, 2, 3, false] }],
                         ["bold", "italic", "underline", "strike"],
@@ -287,13 +294,13 @@ function RichTextEditor({ value, onChange, placeholder = "Start writing here..."
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const CATEGORY_MAP: Record<string, string> = {
-    others: "Others",
+    others: "News and Insights",
     industry_updates: "Industry Updates",
     resources: "Resources",
 };
 
 const CATEGORY_CHOICES = [
-    { value: "others", label: "Others" },
+    { value: "others", label: "News and Insights" },
     { value: "industry_updates", label: "Industry Updates" },
     { value: "resources", label: "Resources" },
 ];
@@ -614,7 +621,7 @@ export default function Blog() {
                                         />
                                         <div className="absolute inset-0 bg-linear-to-t from-black/45 via-black/10 to-transparent" />
                                         <div className="absolute left-4 top-4 inline-flex items-center rounded-full bg-white/95 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#101828] shadow-sm">
-                                            {CATEGORY_MAP[post.category ?? "others"] || "Others"}
+                                            {CATEGORY_MAP[post.category ?? "others"] || "News and Insights"}
                                         </div>
                                         <div className="absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-full bg-black/40 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
                                             <CalendarDays className="size-3.5" />
@@ -790,7 +797,7 @@ export default function Blog() {
                                                 <div className="flex items-center gap-3">
                                                     <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#98A2B3]">Preview</p>
                                                     <span className="inline-flex items-center rounded-full bg-[#EAF2FF] px-2.5 py-0.5 text-xs font-medium text-[#175CD3]">
-                                                        {CATEGORY_MAP[formState.category] || "Others"}
+                                                        {CATEGORY_MAP[formState.category] || "News and Insights"}
                                                     </span>
                                                 </div>
                                                 <h4 className="mt-2 text-2xl font-semibold leading-tight text-[#101828]">{formState.title || "Untitled post"}</h4>
@@ -856,7 +863,7 @@ export default function Blog() {
                                                     ID #{selectedBlog.id}
                                                 </span>
                                                 <span className="inline-flex items-center rounded-full bg-[#EAF2FF] px-3 py-1 font-medium text-[#175CD3]">
-                                                    {CATEGORY_MAP[selectedBlog.category ?? "others"] || "Others"}
+                                                    {CATEGORY_MAP[selectedBlog.category ?? "others"] || "News and Insights"}
                                                 </span>
                                             </div>
                                             <h4 className="text-2xl font-semibold leading-tight text-[#101828] md:text-3xl">{selectedBlog.title}</h4>
