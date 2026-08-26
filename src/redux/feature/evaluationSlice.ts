@@ -97,7 +97,6 @@ const settingSlice = baseApi.injectEndpoints({
       url: `/admin/agreement-forms/${id}/`,
       method: "PATCH",
       body: data,
-      formData: true,
     }),
     invalidatesTags: ["Evaluation"],
   }),
