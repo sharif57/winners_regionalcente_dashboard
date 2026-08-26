@@ -108,8 +108,9 @@ export default function Evaluation() {
     const [reviewLoadingId, setReviewLoadingId] = useState<number | null>(null);
     const itemsPerPage = 6;
 
-    const { data: userAgreementsData } = useUserAgreementsQuery(undefined) as {
+    const { data: userAgreementsData, isLoading } = useUserAgreementsQuery(undefined) as {
         data?: UserAgreementsResponse;
+        isLoading: boolean;
     };
 
     const { data: userAgreementDetails } = useAgreementDetailsQuery(modal.evaluationId as number, {
@@ -244,7 +245,12 @@ export default function Evaluation() {
                 </Link>
             </div>
 
-            {evaluationData.length === 0 ? (
+            {isLoading ? (
+                <div className="flex h-64 flex-col items-center justify-center gap-4">
+                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#F65353] border-t-transparent"></div>
+                    <p className="text-sm font-medium text-[#667085]">Loading evaluation data...</p>
+                </div>
+            ) : evaluationData.length === 0 ? (
                 <div className="rounded-md border border-dashed border-[#EAECF0] bg-[#F9FAFB] px-6 py-12 text-center text-[#667085]">
                     No evaluation data found.
                 </div>
